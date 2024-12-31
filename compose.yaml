@@ -1,0 +1,6 @@
+﻿services:
+  evs.app:
+    image: evs.app
+    build:
+      context: .
+      dockerfile: EVS.App/Dockerfile
