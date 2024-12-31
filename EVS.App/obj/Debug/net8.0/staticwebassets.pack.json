@@ -1,0 +1,41 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\jzasa\\RiderProjects\\Learning_projects\\CustomIdentity\\EvenVotingService\\EVS.App\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\EVS.App.bundle.scp.css",
+      "PackagePath": "staticwebassets\\EVS.App.bundle.scp.css"
+    },
+    {
+      "Id": "C:\\Users\\jzasa\\RiderProjects\\Learning_projects\\CustomIdentity\\EvenVotingService\\EVS.App\\wwwroot\\app.css",
+      "PackagePath": "staticwebassets\\app.css"
+    },
+    {
+      "Id": "C:\\Users\\jzasa\\RiderProjects\\Learning_projects\\CustomIdentity\\EvenVotingService\\EVS.App\\wwwroot\\bootstrap\\bootstrap.min.css",
+      "PackagePath": "staticwebassets\\bootstrap\\bootstrap.min.css"
+    },
+    {
+      "Id": "C:\\Users\\jzasa\\RiderProjects\\Learning_projects\\CustomIdentity\\EvenVotingService\\EVS.App\\wwwroot\\bootstrap\\bootstrap.min.css.map",
+      "PackagePath": "staticwebassets\\bootstrap\\bootstrap.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\jzasa\\RiderProjects\\Learning_projects\\CustomIdentity\\EvenVotingService\\EVS.App\\wwwroot\\favicon.png",
+      "PackagePath": "staticwebassets\\favicon.png"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.EVS.App.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.EVS.App.props",
+      "PackagePath": "build\\EVS.App.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.EVS.App.props",
+      "PackagePath": "buildMultiTargeting\\EVS.App.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.EVS.App.props",
+      "PackagePath": "buildTransitive\\EVS.App.props"
+    }
+  ],
+  "ElementsToRemove": []
+}
