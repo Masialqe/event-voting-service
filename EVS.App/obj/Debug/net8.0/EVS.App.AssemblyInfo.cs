@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EVS.App")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+703793c59a498d8c177bf2d6c9aab8b6e623aeef")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+bdae527580dcfece7e9c58daaa1d0fcc2221d14d")]
 [assembly: System.Reflection.AssemblyProductAttribute("EVS.App")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EVS.App")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,6 +1,33 @@
 ﻿services:
-  evs.app:
+  
+  evs-app:
     image: evs.app
+    container_name: evs-app
     build:
       context: .
       dockerfile: EVS.App/Dockerfile
+    ports:
+      - "8080:8080"
+    networks:
+      - evs-app-network
+      
+  evs-seq:
+    image: datalust/seq:latest
+    container_name: evs-seq
+    ports:
+      - "5341:5341"
+      - "8082:80"
+    environment:
+      - ACCEPT_EULA=Y
+    volumes:
+      - seq-data:/data
+    networks:
+      - evs-app-network
+        
+        
+networks:
+  evs-app-network:
+    driver: bridge
+
+volumes:
+  seq-data:
