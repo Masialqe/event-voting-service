@@ -23,11 +23,38 @@
       - seq-data:/data
     networks:
       - evs-app-network
-        
-        
+      
+  evs-database:
+    image: postgres:latest
+    container_name: evs-database
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432" 
+    networks:
+      - evs-app-network
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  evs-pgadmin:
+    image: dpage/pgadmin4
+    container_name: evs-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8083:80"
+    networks:
+      - evs-app-network
+    depends_on:
+      - evs-database
+              
 networks:
   evs-app-network:
     driver: bridge
 
 volumes:
   seq-data:
+  postgres-data:

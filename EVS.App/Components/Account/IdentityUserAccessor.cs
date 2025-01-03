@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Identity;
-using EVS.App.Data;
+using EVS.App.Infrastructure.Identity.Users;
 
 namespace EVS.App.Components.Account;
 
 internal sealed class IdentityUserAccessor(
-    UserManager<ApplicationUser> userManager,
+    UserManager<VoterIdentity> userManager,
     IdentityRedirectManager redirectManager)
 {
-    public async Task<ApplicationUser> GetRequiredUserAsync(HttpContext context)
+    public async Task<VoterIdentity> GetRequiredUserAsync(HttpContext context)
     {
         var user = await userManager.GetUserAsync(context.User);
 

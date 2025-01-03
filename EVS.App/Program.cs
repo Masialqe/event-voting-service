@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using EVS.App.Components;
 using EVS.App.Components.Account;
-using EVS.App.Data;
 using EVS.App.Infrastructure.Identity;
 using Serilog;
 

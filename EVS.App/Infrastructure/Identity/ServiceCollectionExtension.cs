@@ -1,5 +1,6 @@
 ﻿using EVS.App.Components.Account;
-using EVS.App.Data;
+using EVS.App.Infrastructure.Identity.Database;
+using EVS.App.Infrastructure.Identity.Users;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -26,15 +27,15 @@ public static class ServiceCollectionExtension
         var connectionString = configuration.GetConnectionString("DefaultConnection") ??
                                throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
         services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlite(connectionString));
+            options.UseNpgsql(connectionString));
         services.AddDatabaseDeveloperPageExceptionFilter();
 
-        services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+        services.AddIdentityCore<VoterIdentity>(options => options.SignIn.RequireConfirmedAccount = true)
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddSignInManager()
             .AddDefaultTokenProviders();
 
-        services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
+        services.AddSingleton<IEmailSender<VoterIdentity>, IdentityNoOpEmailSender>();
         
         return services;
     }
