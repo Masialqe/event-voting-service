@@ -26,8 +26,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Application\" />
-      <Folder Include="Domain\" />
       <Folder Include="Infrastructure\Database\" />
       <Folder Include="Infrastructure\Identity\" />
       <Folder Include="Infrastructure\SMTP\" />
