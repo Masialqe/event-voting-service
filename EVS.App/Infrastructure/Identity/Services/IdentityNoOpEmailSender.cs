@@ -1,8 +1,8 @@
+using EVS.App.Infrastructure.Identity.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using EVS.App.Infrastructure.Identity.Users;
 
-namespace EVS.App.Components.Account;
+namespace EVS.App.Infrastructure.Identity.Services;
 
 // Remove the "else if (EmailSender is IdentityNoOpEmailSender)" block from RegisterConfirmation.razor after updating with a real implementation.
 internal sealed class IdentityNoOpEmailSender : IEmailSender<VoterIdentity>

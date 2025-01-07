@@ -1,6 +1,13 @@
-﻿namespace EVS.App.Application.UseCases.Voters.ConfirmVotersAccount;
+﻿using EVS.App.Application.Abstractions;
+using EVS.App.Domain.Abstractions;
 
-public class ConfirmVotersAccountHandler
+namespace EVS.App.Application.UseCases.Voters.ConfirmVotersAccount;
+
+public class ConfirmVotersAccountHandler : IHandler<Result, ConfirmVotersAccountRequest>
 {
-    
+    public Task<Result> Handle(ConfirmVotersAccountRequest request, 
+        CancellationToken cancellationToken = default)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -1,7 +1,8 @@
-using Microsoft.AspNetCore.Identity;
+using EVS.App.Components.Account;
 using EVS.App.Infrastructure.Identity.Users;
+using Microsoft.AspNetCore.Identity;
 
-namespace EVS.App.Components.Account;
+namespace EVS.App.Infrastructure.Identity.Services;
 
 internal sealed class IdentityUserAccessor(
     UserManager<VoterIdentity> userManager,

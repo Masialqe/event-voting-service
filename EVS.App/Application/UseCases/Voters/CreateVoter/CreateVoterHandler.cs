@@ -1,11 +1,13 @@
 ﻿using EVS.App.Application.Abstractions;
+using EVS.App.Application.UseCases.Voters.CreateUser;
 using EVS.App.Domain.Abstractions;
 using EVS.App.Domain.Voters;
 
-namespace EVS.App.Application.UseCases.Voters.CreateUser;
+namespace EVS.App.Application.UseCases.Voters.CreateVoter;
 
 public class CreateVoterHandler(
     IUserService userService,
+    IAccountManager accountManager,
     VoterService voterService,
     ILogger<CreateVoterHandler> logger) : IHandler<Result, CreateVoterRequest>
 {
@@ -21,20 +23,22 @@ public class CreateVoterHandler(
                 request.Password);
 
             if (!voterIdentityCreationResult.IsSuccess) return HandleVoterCreationError();
-        
-            var voterCreationResult = await voterService.CreateVoterAsync(
-                new Voter(), 
-                voterIdentityCreationResult.Value, 
+            
+            var voterUserId = voterIdentityCreationResult.Value;
+            var voter = CreateNewVoter(request.Username, voterUserId, request.Email);
+            var voterCreationResult = await voterService.CreateVoterAsync(voter,
                 cancellationToken);
-        
+
+            await accountManager.SendAccountConfirmationMessageAsync(voterUserId, cancellationToken);
+            
             return !voterCreationResult.IsSuccess ? HandleVoterCreationError(voterCreationResult.Error) : Result.Success();
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            return HandleVoterCreationError(e);
+            return HandleVoterCreationError(ex);
         }
     }
-
+    
     private Error HandleVoterCreationError(Error? error = null)
     {
         var resultError = error ?? VoterErrors.VoterNotCreatedError;
@@ -44,4 +48,7 @@ public class CreateVoterHandler(
         
         return resultError;
     }
+
+    private Voter CreateNewVoter(string nickname, string userId, string email)
+        => Voter.Create(nickname, userId, email);
 }

@@ -1,6 +1,9 @@
-﻿namespace EVS.App.Application.Errors;
+﻿using EVS.App.Domain.Abstractions;
 
-public class ApplicationErrors
+namespace EVS.App.Application.Errors;
+
+public static class ApplicationErrors
 {
-    
+    public static Error ApplicationExceptionError => 
+        new Error(nameof(ApplicationExceptionError), "Application exception occurred.");
 }
