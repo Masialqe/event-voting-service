@@ -7,9 +7,4 @@ namespace EVS.App.Infrastructure.Identity.Database;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
     : IdentityDbContext<VoterIdentity>(options)
 {
-    protected override void OnModelCreating(ModelBuilder builder)
-    {
-        //builder.ApplyConfigurationsFromAssembly(typeof(Program).Assembly);  
-        base.OnModelCreating(builder);
-    }
 }
