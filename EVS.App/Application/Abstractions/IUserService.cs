@@ -18,4 +18,7 @@ public interface IUserService
         string username,
         string email,
         string password);
+    
+    Task<Result<string>> IsUserEmailExistsAsync(string email,
+        CancellationToken cancellationToken);
 }

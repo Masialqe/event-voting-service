@@ -1,7 +1,7 @@
 ﻿using EVS.App.Infrastructure.Identity.Users;
+using Microsoft.AspNetCore.Identity;
 using EVS.App.Shared.Abstractions;
 using EVS.App.Shared.Messaging;
-using Microsoft.AspNetCore.Identity;
 
 namespace EVS.App.Infrastructure.Identity.Implementations;
 
@@ -10,16 +10,26 @@ public class IdentityEmailSender(
 {
     public async Task SendConfirmationLinkAsync(VoterIdentity user, string email, string confirmationLink)
     {
-        ArgumentNullException.ThrowIfNull(user.UserName);
+        if(user == null || string.IsNullOrEmpty(user.UserName) ||
+           string.IsNullOrEmpty(user.Email) ||
+           string.IsNullOrEmpty(confirmationLink))
+            throw new ArgumentNullException();
         
         var message = MessageFactory.EmailConfirmationMessage(email, user.UserName, confirmationLink);
         
         await messageProducer.QueueMessage(message);
     }
 
-    public Task SendPasswordResetLinkAsync(VoterIdentity user, string email, string resetLink)
+    public async Task SendPasswordResetLinkAsync(VoterIdentity user, string email, string resetLink)
     {
-        throw new NotImplementedException();
+        if(user == null || string.IsNullOrEmpty(user.UserName) ||
+           string.IsNullOrEmpty(user.Email) ||
+           string.IsNullOrEmpty(resetLink))
+            throw new ArgumentNullException();
+        
+        var message = MessageFactory.PasswordResetMessage(email, user.UserName, resetLink);
+        
+        await messageProducer.QueueMessage(message);
     }
 
     public Task SendPasswordResetCodeAsync(VoterIdentity user, string email, string resetCode)

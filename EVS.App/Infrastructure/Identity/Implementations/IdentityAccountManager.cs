@@ -1,12 +1,15 @@
 ﻿using System.Text;
 using System.Text.Encodings.Web;
 using EVS.App.Application.Abstractions;
+using EVS.App.Domain.Abstractions;
+using EVS.App.Domain.Voters;
 using EVS.App.Infrastructure.Identity.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 
 namespace EVS.App.Infrastructure.Identity.Implementations;
 
+//TODO: Remove code duplicates
 public class IdentityAccountManager(
     IEmailSender<VoterIdentity> emailSender,
     UserManager<VoterIdentity> userManager) : IAccountManager
@@ -24,7 +27,33 @@ public class IdentityAccountManager(
         
         await emailSender.SendConfirmationLinkAsync(user, userEmail, HtmlEncoder.Default.Encode(callbackUrl));
     }
-    
+
+    public async Task SendPasswordResetMessageAsync(string userEmail, string passwordResetUrl,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await userManager.FindByEmailAsync(userEmail);
+        ArgumentNullException.ThrowIfNull(user);
+        
+        var code = await userManager.GeneratePasswordResetTokenAsync(user);
+        code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+        var callbackUrl = BuildConfirmationUrl(passwordResetUrl, user.Id, code);
+        
+        await emailSender.SendPasswordResetLinkAsync(user, userEmail, HtmlEncoder.Default.Encode(callbackUrl));
+    }
+
+    public async Task<Result> ConfirmEmailAsync(string userEmail, string code, 
+        CancellationToken cancellationToken = default)
+    {
+        var user = await userManager.FindByEmailAsync(userEmail);
+
+        if (user is null)
+            return VoterErrors.VoterDoesntExistsError;
+        
+        var result = await userManager.ConfirmEmailAsync(user, code);
+
+        return result.Succeeded ? Result.Success() : VoterErrors.VoterOperationError;
+    }
+
     private string BuildConfirmationUrl(string confirmationUrl, string userId, string code)
     {
         var builder = new UriBuilder(confirmationUrl)

@@ -1,5 +1,6 @@
 ﻿using EVS.App.Application.Abstractions;
 using EVS.App.Domain.Abstractions;
+using EVS.App.Domain.Voters;
 using EVS.App.Infrastructure.Identity.Users;
 using Microsoft.AspNetCore.Identity;
 
@@ -22,7 +23,16 @@ public class IdentityUserService(
 
         return userId;
     }
-    
+
+    public async Task<Result<string>> IsUserEmailExistsAsync(string email, CancellationToken cancellationToken)
+    {
+        var user = await userManager.FindByEmailAsync(email);
+        if (user is null)
+            return VoterErrors.VoterDoesntExistsError;
+        
+        return user.Email;
+    }
+
 
     private VoterIdentity CreateUser()
     {
