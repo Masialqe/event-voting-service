@@ -16,7 +16,7 @@ public class VoterService(
         return Result.Success();
     }
 
-    private async Task<bool> IsVoterExistsAsync(Voter voter,
+    public async Task<bool> IsVoterExistsAsync(Voter voter,
         CancellationToken cancellationToken = default)
     {
         var voterByUsername = await voterRepository.GetVoterByNameAsync(voter.Username, cancellationToken);

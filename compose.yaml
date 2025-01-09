@@ -6,6 +6,10 @@
     build:
       context: .
       dockerfile: EVS.App/Dockerfile
+    environment:
+      - RabbitMQ__Host=amqp://evs-rabbitMq:5672
+      - RabbitMQ__Username=test
+      - RabbitMQ__Password=test
     ports:
       - "8080:8080"
     networks:
@@ -50,6 +54,22 @@
       - evs-app-network
     depends_on:
       - evs-database
+      
+  evs-rabbitMq:
+    image: rabbitmq:management-alpine
+    container_name: evs-rabbitMq
+    hostname: evs-queue
+    volumes:
+      - rabbit-data:/var/lib/rabbitmq
+      - rabbit-logs:/var/log/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: test
+      RABBITMQ_DEFAULT_PASS: test
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - evs-app-network
               
 networks:
   evs-app-network:
@@ -58,3 +78,5 @@ networks:
 volumes:
   seq-data:
   postgres-data:
+  rabbit-data:
+  rabbit-logs:

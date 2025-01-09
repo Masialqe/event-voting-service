@@ -4,6 +4,7 @@ using EVS.App.Infrastructure.Database;
 using EVS.App.Infrastructure.Database.Context;
 using EVS.App.Infrastructure.Database.Extensions;
 using EVS.App.Infrastructure.Identity;
+using EVS.App.Infrastructure.Messaging;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -15,10 +16,13 @@ builder.Services.AddRazorComponents()
 builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
 
+//Infrastructure
 builder.Services
     .AddIdentityServices(builder.Configuration)
+    .AddMessagingServices(builder.Configuration)
     .AddDatabaseServices(builder.Configuration);
 
+//Application
 builder.Services
     .AddDomainServices()
     .AddApplicationServices();

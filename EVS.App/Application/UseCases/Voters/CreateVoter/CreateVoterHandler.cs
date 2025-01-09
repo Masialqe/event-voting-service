@@ -29,7 +29,7 @@ public class CreateVoterHandler(
             var voterCreationResult = await voterService.CreateVoterAsync(voter,
                 cancellationToken);
 
-            await accountManager.SendAccountConfirmationMessageAsync(voterUserId, cancellationToken);
+            await accountManager.SendAccountConfirmationMessageAsync(request.Email, request.ConfirmationUrl, cancellationToken);
             
             return !voterCreationResult.IsSuccess ? HandleVoterCreationError(voterCreationResult.Error) : Result.Success();
         }

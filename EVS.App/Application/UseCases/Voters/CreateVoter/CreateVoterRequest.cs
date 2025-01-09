@@ -3,4 +3,5 @@
 public sealed record CreateVoterRequest(
     string Username, 
     string Email, 
-    string Password);
+    string Password,
+    string ConfirmationUrl);

@@ -73,25 +73,22 @@
 
     public async Task RegisterUser(EditContext editContext)
     {
-        var request = new CreateVoterRequest(Input.Username, Input.Email, Input.Password);
-
-        await CreateVoterHandler.Handle(request);
-
-        // var user = CreateUser();
-        //
-        // await UserStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
-        // var emailStore = GetEmailStore();
-        // await emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
-        // var result = await UserManager.CreateAsync(user, Input.Password);
-        //
-        // if (!result.Succeeded)
-        // {
-        //     identityErrors = result.Errors;
-        //     return;
-        // }
-        //
-        // Logger.LogInformation("User created a new account with password.");
-        //
+        var confirmationUrl = NavigationManager.ToAbsoluteUri("Account/ConfirmEmail").AbsoluteUri;
+        var request = new CreateVoterRequest(Input.Username, Input.Email, Input.Password, confirmationUrl);
+        
+        var result = await CreateVoterHandler.Handle(request);
+        
+        //Handle failure
+        if(result.IsFailure)
+            Console.WriteLine(result.Error);
+        
+        if (result.IsSuccess && UserManager.Options.SignIn.RequireConfirmedAccount)
+        {
+             RedirectManager.RedirectTo(
+                 "Account/RegisterConfirmation",
+                 new() { ["email"] = Input.Email, ["returnUrl"] = ReturnUrl });
+        }
+        
         // var userId = await UserManager.GetUserIdAsync(user);
         // var code = await UserManager.GenerateEmailConfirmationTokenAsync(user);
         // code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
