@@ -9,32 +9,33 @@ namespace EVS.App.Infrastructure.Messaging.Configuration;
 public sealed class SmtpOptions : IAppOptions
 {
     public static readonly string SectionName = "SmtpOptions";
-    
+
     /// <summary>
     /// SMTP Host name.
     /// </summary>
     /// <example>smtp.example.com</example>
     [Required]
-    public string Host { get; set; } = string.Empty;
-    
+    public string Host { get; set; } = "smtp.gmail.com";
+
     /// <summary>
-    /// SMTP target port. Default: 465.
+    /// SMTP target port.
     /// </summary>
     /// <example>587</example>
+    [Required]
     public int Port { get; set; } = 465;
-    
+
     /// <summary>
     /// SMTP Username to authenticate.
     /// </summary>
     /// <example>user@example.com</example>
     [Required]
-    public string UserName { get; set; } = string.Empty;
-    
+    public string UserName { get; set; } = "jacboksendur@gmail.com";
+
     /// <summary>
     /// SMTP User's password to authenticate.
     /// </summary>
     [Required]
-    public string Password { get; set; } = string.Empty;
+    public string Password { get; set; } = "aruh rjip pwpo mkwk";
     
     /// <summary>
     /// Custom sender name. Default - app name.

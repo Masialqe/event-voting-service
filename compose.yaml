@@ -8,12 +8,22 @@
       dockerfile: EVS.App/Dockerfile
     environment:
       - RabbitMQ__Host=amqp://evs-rabbitMq:5672
-      - RabbitMQ__Username=test
+      - RabbitMQ__Username=guest
       - RabbitMQ__Password=test
+      - SMTP_Options__Host=${SMTP_OPTIONS__HOST}
+      - SMTP_Options__Port=${SMTP_OPTIONS__PORT}
+      - SMTP_Options__Username=${SMTP_OPTIONS__USERNAME}
+      - SMTP_Options__Password=${SMTP_OPTIONS__PASSWORD}
+      - SMTP_Options__Name=${SMTP_OPTIONS__NAME}
     ports:
       - "8080:8080"
     networks:
       - evs-app-network
+    volumes:
+      - app-data:/app/appData
+    depends_on:
+      - evs-database
+      - evs-rabbitMq
       
   evs-seq:
     image: datalust/seq:latest
@@ -58,12 +68,12 @@
   evs-rabbitMq:
     image: rabbitmq:management-alpine
     container_name: evs-rabbitMq
-    hostname: evs-queue
+    hostname: evs-rabbitMq
     volumes:
       - rabbit-data:/var/lib/rabbitmq
       - rabbit-logs:/var/log/rabbitmq
     environment:
-      RABBITMQ_DEFAULT_USER: test
+      RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: test
     ports:
       - "5672:5672"
@@ -80,3 +90,4 @@ volumes:
   postgres-data:
   rabbit-data:
   rabbit-logs:
+  app-data:

@@ -19,9 +19,18 @@ public class IdentityUserService(
         await emailStore.SetEmailAsync(user, email, CancellationToken.None);
         var result = await userManager.CreateAsync(user, password);
         
+        if (!result.Succeeded)
+            return HandleFailedUserCreation(result);
+        
         var userId = await userManager.GetUserIdAsync(user);
 
         return userId;
+    }
+
+    private static Error HandleFailedUserCreation(IdentityResult result)
+    {
+        var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+        return VoterErrors.VoterNotCreatedError(errors);
     }
 
     public async Task<Result<string>> IsUserEmailExistsAsync(string email, CancellationToken cancellationToken)

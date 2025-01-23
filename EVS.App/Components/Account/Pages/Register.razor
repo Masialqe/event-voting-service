@@ -51,11 +51,18 @@
     </div>
 </div>
 
+@if (!string.IsNullOrEmpty(message))
+{
+    <p>@message</p>
+}
+
 @code {
     
     [SupplyParameterFromForm] private InputModel Input { get; set; } = new();
 
     [SupplyParameterFromQuery] private string? ReturnUrl { get; set; }
+
+    private string? message = string.Empty;
 
     public async Task RegisterUser(EditContext editContext)
     {
@@ -65,8 +72,8 @@
         var result = await CreateVoterHandler.Handle(request);
         
         //TODO: Handle failure
-        if(result.IsFailure)
-            Console.WriteLine(result.Error);
+        if (result.IsFailure)
+            message = result.Error.errorDescription;
         
         if (result.IsSuccess)
         {

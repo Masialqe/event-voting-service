@@ -4,6 +4,10 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8081
 
+#RUN mkdir -p /app/appData && \
+    #chown -R $APP_UID:$APP_UID /app/appData && \
+    #chmod -R 755 /app/appData
+
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src

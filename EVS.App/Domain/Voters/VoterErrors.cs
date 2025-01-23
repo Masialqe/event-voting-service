@@ -4,8 +4,9 @@ namespace EVS.App.Domain.Voters;
 
 public static class VoterErrors
 {
-    public static Error VoterNotCreatedError => new Error(nameof(VoterNotCreatedError), "Cannot create voter.");
+    public static Error VoterNotCreatedError(string? details = "Cannot create a voter.") 
+        => new Error(nameof(VoterNotCreatedError), details);
     public static Error VoterAlreadyExistsError => new Error(nameof(VoterAlreadyExistsError), "Voter is not unique.");
     public static Error VoterDoesntExistsError => new Error(nameof(VoterAlreadyExistsError), "Voter does not exist.");
-    public static Error VoterOperationError => new Error(nameof(VoterOperationError), "Cannot perform operation.");
+    public static Error VoterOperationError => new Error(nameof(VoterOperationError), "Error occured during processing operation.");
 }

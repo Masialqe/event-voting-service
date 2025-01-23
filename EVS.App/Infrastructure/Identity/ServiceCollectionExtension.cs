@@ -5,6 +5,7 @@ using EVS.App.Infrastructure.Identity.Implementations;
 using EVS.App.Infrastructure.Identity.Services;
 using EVS.App.Infrastructure.Identity.Users;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,7 +34,12 @@ public static class ServiceCollectionExtension
             options.UseNpgsql(connectionString));
         services.AddDatabaseDeveloperPageExceptionFilter();
 
-        services.AddIdentityCore<VoterIdentity>(options => options.SignIn.RequireConfirmedAccount = true)
+        services.AddIdentityCore<VoterIdentity>(options =>
+            {
+                options.SignIn.RequireConfirmedAccount = true;
+                options.SignIn.RequireConfirmedEmail = true;
+                options.User.RequireUniqueEmail = true;
+            })
             .AddEntityFrameworkStores<IdentityDbContext>()
             .AddSignInManager()
             .AddDefaultTokenProviders();
@@ -41,6 +47,11 @@ public static class ServiceCollectionExtension
         services.AddSingleton<IEmailSender<VoterIdentity>, IdentityEmailSender>();
         services.AddScoped<IUserService, IdentityUserService>();
         services.AddScoped<IAccountManager, IdentityAccountManager>();
+        
+        //Store key inside docker container.
+        services.AddDataProtection()
+            .PersistKeysToFileSystem(new DirectoryInfo("/app/appData"))
+            .SetApplicationName(nameof(EVS.App));
         
         return services;
     }

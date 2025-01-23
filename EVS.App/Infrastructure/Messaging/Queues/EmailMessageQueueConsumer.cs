@@ -1,11 +1,11 @@
 ﻿using EVS.App.Application.Messaging;
-using EVS.App.Infrastructure.Messaging.Services;
+using EVS.App.Shared.Abstractions;
 using MassTransit;
 
 namespace EVS.App.Infrastructure.Messaging.Queues;
 
 public sealed class EmailMessageQueueConsumer(
-    SmtpMessageService messageService,
+    IMessageService messageService,
     ILogger<EmailMessageQueueConsumer> logger) : IConsumer<Message>
 {
     public async Task Consume(ConsumeContext<Message> context)

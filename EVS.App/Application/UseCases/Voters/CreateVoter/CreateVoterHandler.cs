@@ -22,7 +22,7 @@ public class CreateVoterHandler(
                 request.Email,
                 request.Password);
 
-            if (!voterIdentityCreationResult.IsSuccess) return HandleVoterCreationError();
+            if (!voterIdentityCreationResult.IsSuccess) return HandleVoterCreationError(voterIdentityCreationResult.Error);
             
             var voterUserId = voterIdentityCreationResult.Value;
             var voter = CreateNewVoter(request.Username, voterUserId, request.Email);
@@ -41,7 +41,7 @@ public class CreateVoterHandler(
     
     private Error HandleVoterCreationError(Error? error = null)
     {
-        var resultError = error ?? VoterErrors.VoterNotCreatedError;
+        var resultError = error ?? VoterErrors.VoterNotCreatedError();
         
         logger.LogError("Failed to create voter due to exception. {ErrorName} {ErrorMessage}", 
             resultError.errorName, resultError.errorDescription);
