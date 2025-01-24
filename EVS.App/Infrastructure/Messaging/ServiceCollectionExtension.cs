@@ -34,11 +34,14 @@ public static class ServiceCollectionExtension
         });
     
         //TODO: configuration validation
-        services.AddOptions<SmtpOptions>()
-            .BindConfiguration(SmtpOptions.SectionName);
+        //services.AddOptions<SmtpOptions>()
+            //.BindConfiguration(SmtpOptions.SectionName);
         
-        services.AddOptions<RabbitMqOptions>()
-            .BindConfiguration(RabbitMqOptions.SectionName);
+        //services.AddOptions<RabbitMqOptions>()
+            //.BindConfiguration(RabbitMqOptions.SectionName);
+        
+        services.Configure<SmtpOptions>(configuration.GetSection(SmtpOptions.SectionName));
+        services.Configure<RabbitMqOptions>(configuration.GetSection(RabbitMqOptions.SectionName));
         
         //services.AddConfiguredOptions<SmtpOptions>(SmtpOptions.SectionName);
         //services.AddConfiguredOptions<RabbitMqOptions>(RabbitMqOptions.SectionName);

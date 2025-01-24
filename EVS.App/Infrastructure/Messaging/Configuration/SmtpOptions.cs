@@ -15,7 +15,7 @@ public sealed class SmtpOptions : IAppOptions
     /// </summary>
     /// <example>smtp.example.com</example>
     [Required]
-    public string Host { get; set; } = "smtp.gmail.com";
+    public string Host { get; set; } = string.Empty;
 
     /// <summary>
     /// SMTP target port.
@@ -29,13 +29,13 @@ public sealed class SmtpOptions : IAppOptions
     /// </summary>
     /// <example>user@example.com</example>
     [Required]
-    public string UserName { get; set; } = "jacboksendur@gmail.com";
+    public string UserName { get; set; } = string.Empty;
 
     /// <summary>
     /// SMTP User's password to authenticate.
     /// </summary>
     [Required]
-    public string Password { get; set; } = "aruh rjip pwpo mkwk";
+    public string Password { get; set; } = string.Empty;
     
     /// <summary>
     /// Custom sender name. Default - app name.

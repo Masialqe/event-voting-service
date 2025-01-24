@@ -8,13 +8,13 @@
       dockerfile: EVS.App/Dockerfile
     environment:
       - RabbitMQ__Host=amqp://evs-rabbitMq:5672
-      - RabbitMQ__Username=guest
-      - RabbitMQ__Password=test
-      - SMTP_Options__Host=${SMTP_OPTIONS__HOST}
-      - SMTP_Options__Port=${SMTP_OPTIONS__PORT}
-      - SMTP_Options__Username=${SMTP_OPTIONS__USERNAME}
-      - SMTP_Options__Password=${SMTP_OPTIONS__PASSWORD}
-      - SMTP_Options__Name=${SMTP_OPTIONS__NAME}
+      - RabbitMQ__Username=${RabbitMQ_USERNAME}
+      - RabbitMQ__Password=${RabbitMQ_PASSWORD}
+      - SmtpOptions__Host=${SMTP_HOST}
+      - SmtpOptions__Port=${SMTP_PORT}
+      - SmtpOptions__UserName=${SMTP_USERNAME}
+      - SmtpOptions__Password=${SMTP_PASSWORD}
+      - SmtpOptions__Name=${SMTP_NAME}
     ports:
       - "8080:8080"
     networks:
@@ -42,8 +42,8 @@
     image: postgres:latest
     container_name: evs-database
     environment:
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: mydatabase
     ports:
       - "5432:5432" 
@@ -73,8 +73,8 @@
       - rabbit-data:/var/lib/rabbitmq
       - rabbit-logs:/var/log/rabbitmq
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: test
+      RABBITMQ_DEFAULT_USER: ${RabbitMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RabbitMQ_PASSWORD}
     ports:
       - "5672:5672"
       - "15672:15672"

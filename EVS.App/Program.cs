@@ -1,3 +1,4 @@
+using System.Text.Json;
 using EVS.App.Application;
 using EVS.App.Components;
 using EVS.App.Infrastructure.Database;
@@ -5,7 +6,9 @@ using EVS.App.Infrastructure.Database.Context;
 using EVS.App.Infrastructure.Database.Extensions;
 using EVS.App.Infrastructure.Identity;
 using EVS.App.Infrastructure.Messaging;
+using EVS.App.Infrastructure.Messaging.Configuration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +29,7 @@ builder.Services
 builder.Services
     .AddDomainServices()
     .AddApplicationServices();
+
 
 var app = builder.Build();
 
