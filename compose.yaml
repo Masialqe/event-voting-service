@@ -6,10 +6,24 @@
     build:
       context: .
       dockerfile: EVS.App/Dockerfile
+    environment:
+      - RabbitMQ__Host=amqp://evs-rabbitMq:5672
+      - RabbitMQ__Username=${RabbitMQ_USERNAME}
+      - RabbitMQ__Password=${RabbitMQ_PASSWORD}
+      - SmtpOptions__Host=${SMTP_HOST}
+      - SmtpOptions__Port=${SMTP_PORT}
+      - SmtpOptions__UserName=${SMTP_USERNAME}
+      - SmtpOptions__Password=${SMTP_PASSWORD}
+      - SmtpOptions__Name=${SMTP_NAME}
     ports:
       - "8080:8080"
     networks:
       - evs-app-network
+    volumes:
+      - app-data:/app/appData
+    depends_on:
+      - evs-database
+      - evs-rabbitMq
       
   evs-seq:
     image: datalust/seq:latest
@@ -23,11 +37,57 @@
       - seq-data:/data
     networks:
       - evs-app-network
-        
-        
+      
+  evs-database:
+    image: postgres:latest
+    container_name: evs-database
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: mydatabase
+    ports:
+      - "5432:5432" 
+    networks:
+      - evs-app-network
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+  evs-pgadmin:
+    image: dpage/pgadmin4
+    container_name: evs-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8083:80"
+    networks:
+      - evs-app-network
+    depends_on:
+      - evs-database
+      
+  evs-rabbitMq:
+    image: rabbitmq:management-alpine
+    container_name: evs-rabbitMq
+    hostname: evs-rabbitMq
+    volumes:
+      - rabbit-data:/var/lib/rabbitmq
+      - rabbit-logs:/var/log/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RabbitMQ_USERNAME}
+      RABBITMQ_DEFAULT_PASS: ${RabbitMQ_PASSWORD}
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - evs-app-network
+              
 networks:
   evs-app-network:
     driver: bridge
 
 volumes:
   seq-data:
+  postgres-data:
+  rabbit-data:
+  rabbit-logs:
+  app-data:

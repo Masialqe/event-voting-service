@@ -1,10 +1,14 @@
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
+using EVS.App.Application;
 using EVS.App.Components;
-using EVS.App.Components.Account;
-using EVS.App.Data;
+using EVS.App.Infrastructure.Database;
+using EVS.App.Infrastructure.Database.Context;
+using EVS.App.Infrastructure.Database.Extensions;
 using EVS.App.Infrastructure.Identity;
+using EVS.App.Infrastructure.Messaging;
+using EVS.App.Infrastructure.Messaging.Configuration;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,7 +19,17 @@ builder.Services.AddRazorComponents()
 builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));
 
-builder.Services.AddIdentityServices(builder.Configuration);
+//Infrastructure
+builder.Services
+    .AddIdentityServices(builder.Configuration)
+    .AddMessagingServices(builder.Configuration)
+    .AddDatabaseServices(builder.Configuration);
+
+//Application
+builder.Services
+    .AddDomainServices()
+    .AddApplicationServices();
+
 
 var app = builder.Build();
 
@@ -41,5 +55,8 @@ app.MapRazorComponents<App>()
 
 // Add additional endpoints required by the Identity /Account Razor components.
 app.MapAdditionalIdentityEndpoints();
+
+//TODO enable database configuration
+//await app.ConfigureDatabaseAsync();
 
 app.Run();

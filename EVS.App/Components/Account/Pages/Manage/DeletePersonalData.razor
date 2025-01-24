@@ -1,11 +1,12 @@
 ﻿@page "/Account/Manage/DeletePersonalData"
 
 @using System.ComponentModel.DataAnnotations
+@using EVS.App.Infrastructure.Identity.Services
 @using Microsoft.AspNetCore.Identity
-@using EVS.App.Data
+@using EVS.App.Infrastructure.Identity.Users
 
-@inject UserManager<ApplicationUser> UserManager
-@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<VoterIdentity> UserManager
+@inject SignInManager<VoterIdentity> SignInManager
 @inject IdentityUserAccessor UserAccessor
 @inject IdentityRedirectManager RedirectManager
 @inject ILogger<DeletePersonalData> Logger
@@ -40,7 +41,7 @@
 
 @code {
     private string? message;
-    private ApplicationUser user = default!;
+    private VoterIdentity user = default!;
     private bool requirePassword;
 
     [CascadingParameter] private HttpContext HttpContext { get; set; } = default!;

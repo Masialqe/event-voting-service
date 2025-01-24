@@ -1,14 +1,15 @@
 ﻿@page "/Account/Login"
 
 @using System.ComponentModel.DataAnnotations
+@using EVS.App.Application.UseCases.Voters.LoginVoter
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
-@using EVS.App.Data
+@using EVS.App.Shared.Errors
 
-@inject SignInManager<ApplicationUser> SignInManager
-@inject ILogger<Login> Logger
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
+@inject LoginVoterHandler LoginVoterHandler
+
 
 <PageTitle>Log in</PageTitle>
 
@@ -16,7 +17,7 @@
 <div class="row">
     <div class="col-md-4">
         <section>
-            <StatusMessage Message="@errorMessage"/>
+            <StatusMessage Message="@_errorMessage"/>
             <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
                 <DataAnnotationsValidator/>
                 <h2>Use a local account to log in.</h2>
@@ -64,9 +65,12 @@
     </div>
 </div>
 
-@code {
-    private string? errorMessage;
+<p> @ReturnUrl </p>
 
+@code {
+    private string? _errorMessage;
+
+    
     [CascadingParameter] private HttpContext HttpContext { get; set; } = default!;
 
     [SupplyParameterFromForm] private InputModel Input { get; set; } = new();
@@ -84,28 +88,27 @@
 
     public async Task LoginUser()
     {
-        // This doesn't count login failures towards account lockout
-        // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-        var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
-        if (result.Succeeded)
+        var request = new LoginVoterRequest(Input.Email, Input.Password, Input.RememberMe);
+        var result = await LoginVoterHandler.Handle(request);
+        
+        if (result.IsSuccess)
         {
-            Logger.LogInformation("User logged in.");
-            RedirectManager.RedirectTo(ReturnUrl);
+            RedirectManager.RedirectTo("/");
+            
         }
-        else if (result.RequiresTwoFactor)
+        else if (result.Error == LoginErrors.UserRequiresTwoFactor)
         {
             RedirectManager.RedirectTo(
                 "Account/LoginWith2fa",
                 new() { ["returnUrl"] = ReturnUrl, ["rememberMe"] = Input.RememberMe });
         }
-        else if (result.IsLockedOut)
+        else if (result.Error == LoginErrors.UserIsLockedOut)
         {
-            Logger.LogWarning("User account locked out.");
             RedirectManager.RedirectTo("Account/Lockout");
         }
         else
         {
-            errorMessage = "Error: Invalid login attempt.";
+            _errorMessage = result.Error.errorDescription;
         }
     }
 
