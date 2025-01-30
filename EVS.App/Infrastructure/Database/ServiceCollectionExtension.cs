@@ -16,6 +16,7 @@ public static class ServiceCollectionExtension
             options.UseNpgsql(connectionString));
         
         services.AddScoped<IVoterRepository, VoterRepository>();
+        services.AddScoped<IEventRepository, EventRepository>();
         
         return services;
     }

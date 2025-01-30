@@ -1,0 +1,40 @@
+﻿@using EVS.App.Application.UseCases.Voters.GetVoter
+@using EVS.App.Domain.Events
+
+@inject NavigationManager NavigationManager
+@inject GetLoggedVoterHandler GetLoggedVoterHandler
+
+@if(Event is not null)
+{
+    <div class="card" style="width: 18rem;">
+        <div class="card-body">
+            <h5 class="card-title">@Event.Name</h5>
+            <h6 class="card-subtitle mb-2 text-body-secondary">@Event.GetVotersCount()</h6>
+            <p class="card-text">@Event.Description.</p>
+            <button 
+                type="button" 
+                class="btn btn-primary"
+                @onclick="MoveToEventView"> Join! </button>
+            <button
+                type="button"
+                class="btn btn-primary"
+                @onclick="MoveToEventView"> Details </button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public Event? Event { get; set; }
+    
+    private void MoveToEventView()
+    {
+        if(Event is not null)
+            NavigationManager.NavigateTo($"/event/{Event.Id}");
+    }
+
+    private async Task JoinEventAsync()
+    {
+        var loggedVoterResult = await GetLoggedVoterHandler.Handle(new GetloggedVoterRequest());
+        
+    }
+}

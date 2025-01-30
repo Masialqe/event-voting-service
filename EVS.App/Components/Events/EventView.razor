@@ -1,0 +1,38 @@
+﻿@page "/event/{id}"
+@using EVS.App.Domain.Events
+@using Microsoft.AspNetCore.SignalR.Client
+@implements IAsyncDisposable
+
+    <div class="container-fluid shadow h-100">
+        @if (_eventData is not null)
+        {
+            <div class="d-flex flex-column align-items-center h-100">
+                <div class="flex-grow-0 d-flex flex-column align-items-center w-100">
+                    <h1>"@_eventData.Name"</h1>
+                    <p> <i>@_eventData.Description</i></p>
+                </div>
+            </div>
+        }
+    </div>
+
+@code {
+    private HubConnection?_hubConnection = default;
+    private Event? _eventData = default;
+    
+    [Parameter] public string Id { get; set; } = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+    }
+
+
+    public async ValueTask DisposeAsync()
+    {
+        if(_hubConnection is not null)
+        {
+            await _hubConnection.DisposeAsync();
+        }
+    }
+
+}

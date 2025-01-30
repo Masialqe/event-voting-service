@@ -1,4 +1,5 @@
-﻿using EVS.App.Domain.Voters;
+﻿using EVS.App.Domain.Events;
+using EVS.App.Domain.Voters;
 using Microsoft.EntityFrameworkCore;
 
 namespace EVS.App.Infrastructure.Database.Context;
@@ -6,6 +7,7 @@ namespace EVS.App.Infrastructure.Database.Context;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
     public DbSet<Voter> Voters { get; set; }
+    public DbSet<Event> Events { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

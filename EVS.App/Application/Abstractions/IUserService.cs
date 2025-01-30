@@ -1,4 +1,5 @@
 ﻿using EVS.App.Domain.Abstractions;
+using EVS.App.Domain.Voters;
 
 namespace EVS.App.Application.Abstractions;
 

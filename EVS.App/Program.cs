@@ -7,6 +7,7 @@ using EVS.App.Infrastructure.Database.Extensions;
 using EVS.App.Infrastructure.Identity;
 using EVS.App.Infrastructure.Messaging;
 using EVS.App.Infrastructure.Messaging.Configuration;
+using EVS.App.Infrastructure.Notifiers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Serilog;
@@ -23,7 +24,8 @@ builder.Host.UseSerilog((context, configuration) =>
 builder.Services
     .AddIdentityServices(builder.Configuration)
     .AddMessagingServices(builder.Configuration)
-    .AddDatabaseServices(builder.Configuration);
+    .AddDatabaseServices(builder.Configuration)
+    .AddNotifiers();
 
 //Application
 builder.Services
@@ -45,6 +47,7 @@ else
     app.UseHsts();
 }
 
+app.MapHubs();
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();

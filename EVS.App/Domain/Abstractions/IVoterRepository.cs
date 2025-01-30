@@ -4,15 +4,20 @@ namespace EVS.App.Domain.Abstractions;
 
 public interface IVoterRepository
 {
-    Task<Result> AddVoterAsync(
+    Task AddVoterAsync(
         Voter voter,
         CancellationToken cancellationToken = default);
     
-    Task<Result<Voter>> GetVoterByNameAsync(
+    Task<Voter?> GetVoterByNameAsync(
         string name, 
         CancellationToken cancellationToken = default);
     
-    Task<Result<Voter>> GetVoterByEmailAsync(
+    Task<Voter?> GetVoterByEmailAsync(
         string email, 
         CancellationToken cancellationToken = default);
+    
+    Task<Voter?> GetVoterByUserIdAsync(
+        string userId, 
+        CancellationToken cancellationToken = default);
+    
 }

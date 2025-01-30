@@ -16,12 +16,12 @@ public class VoterService(
         return Result.Success();
     }
 
-    public async Task<bool> IsVoterExistsAsync(Voter voter,
+    private async Task<bool> IsVoterExistsAsync(Voter voter,
         CancellationToken cancellationToken = default)
     {
         var voterByUsername = await voterRepository.GetVoterByNameAsync(voter.Username, cancellationToken);
         var voterByEmail = await voterRepository.GetVoterByEmailAsync(voter.Email, cancellationToken);
-
-        return voterByUsername.IsSuccess || voterByEmail.IsSuccess;
+        
+        return voterByUsername is not null || voterByEmail is not null;
     }
 }

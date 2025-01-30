@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace EVS.App.Infrastructure.Identity.Services;
 
-internal sealed class IdentityUserAccessor(
+public sealed class IdentityUserAccessor(
     UserManager<VoterIdentity> userManager,
     IdentityRedirectManager redirectManager)
 {

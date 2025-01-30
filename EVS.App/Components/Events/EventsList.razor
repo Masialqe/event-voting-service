@@ -1,0 +1,38 @@
+﻿@using EVS.App.Application.UseCases.Events.ListEvents
+@using EVS.App.Domain.Events
+
+@inject LoadEventsHandler LoadEventsHandler
+
+<div class="d-flex justify-content-center align-content-center flex-wrap">
+    @if(_events.Length > 0)
+    {
+        @foreach(var ev in _events)
+        {
+            <div class="p-2">
+                <EventCard @key="ev.Id" Event="@ev" />
+            </div>
+
+        }
+    }
+    else
+    {
+        <div class="text-center">
+            <!--
+            <Spinner Type="SpinnerType.Border"/> -->
+            <p> No events available...</p>
+        </div>
+    }
+</div>
+
+@code {
+    private Event[] _events = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var result = await LoadEventsHandler.Handle(new LoadEventsRequest());
+
+        if (result.IsSuccess)
+            _events = result.Value;
+    }
+
+}

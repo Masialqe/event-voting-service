@@ -22,6 +22,22 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
             .HasColumnType("varchar(500)")
             .HasColumnName("Event_Description")
             .IsRequired(false);
+        
+        builder.Property(x => x.EventState)
+            .HasConversion<int>()
+            .HasColumnName("Event_State");
+        
+        builder.Property(x => x.EventType)
+            .HasConversion<int>()
+            .HasColumnName("Event_Type");
+        
+        builder.Property(x => x.CreatedAt)
+            .HasColumnName("Event_CreatedAt");
+        
+        builder.HasOne(x => x.Voter)
+            .WithMany(x => x.CreatedEvents)
+            .HasForeignKey(x => x.VoterId)
+            .OnDelete(DeleteBehavior.NoAction);
 
         builder.HasMany(x => x.VoterEvents)
             .WithOne(x => x.Event)

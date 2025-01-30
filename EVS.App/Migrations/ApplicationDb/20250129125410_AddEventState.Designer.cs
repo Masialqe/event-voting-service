@@ -3,6 +3,7 @@ using System;
 using EVS.App.Infrastructure.Database.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace EVS.App.Migrations.ApplicationDb
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250129125410_AddEventState")]
+    partial class AddEventState
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,10 +43,6 @@ namespace EVS.App.Migrations.ApplicationDb
                     b.Property<int>("EventState")
                         .HasColumnType("integer")
                         .HasColumnName("Event_State");
-
-                    b.Property<int>("EventType")
-                        .HasColumnType("integer")
-                        .HasColumnName("Event_Type");
 
                     b.Property<string>("Name")
                         .IsRequired()

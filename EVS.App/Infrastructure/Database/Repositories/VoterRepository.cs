@@ -8,49 +8,35 @@ namespace EVS.App.Infrastructure.Database.Repositories;
 public class VoterRepository(
     ApplicationDbContext context) : IVoterRepository
 {
-    public async Task<Result> AddVoterAsync(Voter voter, CancellationToken cancellationToken = default)
+    private readonly DbSet<Voter> _voters = context.Voters;
+    public async Task AddVoterAsync(Voter voter, CancellationToken cancellationToken = default)
     {
-        try
-        {
-            await context.Voters.AddAsync(voter, cancellationToken);
-            await context.SaveChangesAsync(cancellationToken);
-            
-            return Result.Success();
-        }
-        catch (Exception ex)
-        {
-            //TODO Infrasttructure errors
-            return (Error)ex;
-        }
+        await _voters.AddAsync(voter, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
     }
   
-    public async Task<Result<Voter>> GetVoterByNameAsync(string name, CancellationToken cancellationToken = default)
+    public async Task<Voter?> GetVoterByNameAsync(string name, CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var result = await context.Voters.FirstOrDefaultAsync(x => x.Username == name, cancellationToken);
+        var result = await _voters
+            .FirstOrDefaultAsync(x => x.Username == name, cancellationToken);
 
-            return result;
-        }
-        catch (Exception ex)
-        {
-            //TODO Infrasttructure errors
-            return (Error)ex;
-        }
+        return result;
     }
 
-    public async Task<Result<Voter>> GetVoterByEmailAsync(string email, CancellationToken cancellationToken = default)
+    public async Task<Voter?> GetVoterByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var result = await context.Voters.FirstOrDefaultAsync(x => x.Email == email, cancellationToken);
+        var result = await _voters
+            .FirstOrDefaultAsync(x => x.Email == email, cancellationToken);
 
-            return result;
-        }
-        catch (Exception ex)
-        {
-            //TODO Infrasttructure errors
-            return (Error)ex;
-        }
+        return result;
+    }
+
+    public async Task<Voter?> GetVoterByUserIdAsync(string userId, 
+        CancellationToken cancellationToken = default)
+    {
+        var result = await _voters
+            .FirstOrDefaultAsync(x => x.UserId == userId, cancellationToken);
+        
+        return result;
     }
 }

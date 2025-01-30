@@ -4,7 +4,7 @@ using EVS.App.Domain.Voters;
 using EVS.App.Infrastructure.Identity.Users;
 using Microsoft.AspNetCore.Identity;
 
-namespace EVS.App.Infrastructure.Identity.Services;
+namespace EVS.App.Infrastructure.Identity.Implementations;
 
 public class IdentityUserService(
     IUserStore<VoterIdentity> userStore,
