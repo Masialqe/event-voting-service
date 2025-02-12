@@ -64,6 +64,8 @@
       - evs-app-network
     depends_on:
       - evs-database
+    volumes:
+      - evs-pgadmin-data:/var/lib/pgadmin
       
   evs-rabbitMq:
     image: rabbitmq:management-alpine
@@ -87,6 +89,7 @@ networks:
 
 volumes:
   seq-data:
+  evs-pgadmin-data:
   postgres-data:
   rabbit-data:
   rabbit-logs:

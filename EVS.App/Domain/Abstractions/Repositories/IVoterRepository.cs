@@ -1,13 +1,9 @@
 ﻿using EVS.App.Domain.Voters;
 
-namespace EVS.App.Domain.Abstractions;
+namespace EVS.App.Domain.Abstractions.Repositories;
 
-public interface IVoterRepository
+public interface IVoterRepository : IGenericRepository<Voter>
 {
-    Task AddVoterAsync(
-        Voter voter,
-        CancellationToken cancellationToken = default);
-    
     Task<Voter?> GetVoterByNameAsync(
         string name, 
         CancellationToken cancellationToken = default);
@@ -19,5 +15,4 @@ public interface IVoterRepository
     Task<Voter?> GetVoterByUserIdAsync(
         string userId, 
         CancellationToken cancellationToken = default);
-    
 }

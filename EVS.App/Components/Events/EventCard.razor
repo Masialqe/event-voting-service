@@ -1,8 +1,10 @@
-﻿@using EVS.App.Application.UseCases.Voters.GetVoter
+﻿@using EVS.App.Application.UseCases.Events.JoinEvent
+@using EVS.App.Application.UseCases.Voters.GetVoter
 @using EVS.App.Domain.Events
 
 @inject NavigationManager NavigationManager
 @inject GetLoggedVoterHandler GetLoggedVoterHandler
+@inject JoinEventHandler JoinEventHandler
 
 @if(Event is not null)
 {
@@ -14,7 +16,7 @@
             <button 
                 type="button" 
                 class="btn btn-primary"
-                @onclick="MoveToEventView"> Join! </button>
+                @onclick="JoinEventAsync"> Join! </button>
             <button
                 type="button"
                 class="btn btn-primary"
@@ -23,18 +25,48 @@
     </div>
 }
 
+@if (!string.IsNullOrEmpty(_result))
+{
+    <p> @_result</p>
+}
+
 @code {
     [Parameter] public Event? Event { get; set; }
+
+    private string _result = string.Empty;
     
     private void MoveToEventView()
     {
         if(Event is not null)
             NavigationManager.NavigateTo($"/event/{Event.Id}");
     }
-
+    
     private async Task JoinEventAsync()
     {
+        Console.WriteLine("BUTTON CLICKED!!!!");
+        //todo: handle user response
         var loggedVoterResult = await GetLoggedVoterHandler.Handle(new GetloggedVoterRequest());
+
+        if (!loggedVoterResult.IsSuccess)
+        {
+            _result = "Bad user";
+            StateHasChanged();
+        }
         
+        var loggedVoter = loggedVoterResult.Value;
+        var joinEventRequest = new JoinEventRequest(loggedVoter, Event.Id);
+        var result = await JoinEventHandler.Handle(joinEventRequest);
+        
+        if (!result.IsSuccess)
+        {
+            _result = result.Error.errorDescription!;
+            StateHasChanged();
+        }
+        else
+        {
+            _result = "Success!";
+            NavigationManager.NavigateTo($"/event/{Event.Id}");
+            StateHasChanged();
+        }
     }
 }

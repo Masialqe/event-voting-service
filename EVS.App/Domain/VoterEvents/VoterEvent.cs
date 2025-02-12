@@ -1,9 +1,11 @@
-﻿using EVS.App.Domain.Events;
+﻿using EVS.App.Domain.Abstractions;
+using EVS.App.Domain.Abstractions.Entities;
+using EVS.App.Domain.Events;
 using EVS.App.Domain.Voters;
 
 namespace EVS.App.Domain.VoterEvents;
 
-public sealed class VoterEvent
+public sealed class VoterEvent : IEntity
 {
     public VoterEvent(){}
 

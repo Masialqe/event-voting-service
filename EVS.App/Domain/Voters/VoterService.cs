@@ -1,4 +1,5 @@
 ﻿using EVS.App.Domain.Abstractions;
+using EVS.App.Domain.Abstractions.Repositories;
 
 namespace EVS.App.Domain.Voters;
 
@@ -12,7 +13,7 @@ public class VoterService(
         if (await IsVoterExistsAsync(voter, cancellationToken))
             return VoterErrors.VoterAlreadyExistsError;
 
-        await voterRepository.AddVoterAsync(voter, cancellationToken);
+        await voterRepository.CreateAsync(voter, cancellationToken);
         return Result.Success();
     }
 

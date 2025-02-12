@@ -1,6 +1,8 @@
 ﻿@page "/"
 @using EVS.App.Components.Events
 
+@rendermode InteractiveServer
+
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
@@ -9,3 +11,20 @@ Welcome to your new app.
 
 <CreateEventForm></CreateEventForm>
 <EventsList></EventsList>
+
+<button class="btn btn-danger" @onclick="Handle"> Click! </button>
+@if (_isVisible)
+{
+    <p> WIDZISZ MNIE </p>
+}
+
+@code
+{
+    private bool _isVisible = false;
+    
+    private void Handle()
+    {
+        _isVisible = !_isVisible;
+        StateHasChanged();
+    }
+}

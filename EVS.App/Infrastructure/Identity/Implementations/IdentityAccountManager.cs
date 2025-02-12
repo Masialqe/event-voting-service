@@ -49,7 +49,7 @@ public class IdentityAccountManager(
         var user = await userManager.FindByIdAsync(userId);
         
         if (user is null)
-            return VoterErrors.VoterDoesntExistsError;
+            return VoterErrors.VoterNotFoundError;
         
         var result = await userManager.ConfirmEmailAsync(user, code);
 

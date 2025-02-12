@@ -1,6 +1,10 @@
 ﻿@page "/event/{id}"
+@using EVS.App.Application.UseCases.Events.GetEventById
 @using EVS.App.Domain.Events
 @using Microsoft.AspNetCore.SignalR.Client
+
+@inject GetEventByIdHandler GetEventByIdHandler
+
 @implements IAsyncDisposable
 
     <div class="container-fluid shadow h-100">
@@ -11,6 +15,16 @@
                     <h1>"@_eventData.Name"</h1>
                     <p> <i>@_eventData.Description</i></p>
                 </div>
+                
+                <p>@_eventData.VoterEvents.Count</p>
+                
+                @if (_eventData.VoterEvents.Count > 0)
+                {
+                    @foreach (var voter in _eventData.VoterEvents)
+                    {
+                        <p>@voter.Voter?.Username - @voter.HasVoted </p> 
+                    }
+                }
             </div>
         }
     </div>
@@ -23,7 +37,11 @@
 
     protected override async Task OnInitializedAsync()
     {
-        
+        var request = new GetEventByIdRequest(Id);
+        var result = await GetEventByIdHandler.Handle(request);
+
+        if (result.IsSuccess)
+            _eventData = result.Value;
     }
 
 

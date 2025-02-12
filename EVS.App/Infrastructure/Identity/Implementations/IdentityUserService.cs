@@ -37,7 +37,7 @@ public class IdentityUserService(
     {
         var user = await userManager.FindByEmailAsync(email);
         if (user is null)
-            return VoterErrors.VoterDoesntExistsError;
+            return VoterErrors.VoterNotFoundError;
         
         return user.Email;
     }

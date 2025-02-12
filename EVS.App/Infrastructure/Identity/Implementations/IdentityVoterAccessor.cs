@@ -1,5 +1,6 @@
 ﻿using EVS.App.Application.Abstractions;
 using EVS.App.Domain.Abstractions;
+using EVS.App.Domain.Abstractions.Repositories;
 using EVS.App.Domain.Voters;
 using EVS.App.Infrastructure.Identity.Errors;
 using EVS.App.Infrastructure.Identity.Services;
@@ -20,9 +21,7 @@ public class IdentityVoterAccessor(
 
         if (voterIdentity is null)
             return IdentityErrors.UserNotFoundError;
-
+        
         return await voterRepository.GetVoterByUserIdAsync(voterIdentity.Id, cancellationToken);
     }
-
-    
 }

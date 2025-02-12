@@ -1,5 +1,7 @@
 ﻿using EVS.App.Application.UseCases.Events.CreateEvent;
 using EVS.App.Application.UseCases.Events.EventHubs;
+using EVS.App.Application.UseCases.Events.GetEventById;
+using EVS.App.Application.UseCases.Events.JoinEvent;
 using EVS.App.Application.UseCases.Events.ListEvents;
 using EVS.App.Application.UseCases.Voters.ConfirmVoterEmail;
 using EVS.App.Application.UseCases.Voters.CreateVoter;
@@ -24,6 +26,8 @@ public static class ServiceCollectionExtension
         //events
         services.AddScoped<CreateEventHandler>();
         services.AddScoped<LoadEventsHandler>();
+        services.AddScoped<JoinEventHandler>();
+        services.AddScoped<GetEventByIdHandler>();
         services.UseSignalR();
         
         return services;
@@ -49,6 +53,7 @@ public static class ServiceCollectionExtension
         {
             options.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
             options.MaximumReceiveMessageSize = 1024 * 1024 * 5; //5MB
+            options.EnableDetailedErrors = true;
         });
 
         return services;

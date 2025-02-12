@@ -1,9 +1,12 @@
-﻿using EVS.App.Domain.VoterEvents;
+﻿using EVS.App.Domain.Abstractions;
+using EVS.App.Domain.Abstractions.Entities;
+using EVS.App.Domain.Exceptions;
+using EVS.App.Domain.VoterEvents;
 using EVS.App.Domain.Voters;
 
 namespace EVS.App.Domain.Events;
 
-public sealed class Event
+public sealed class Event : IVoterEventEntity
 {
     public static Event Create(string eventName, string eventDescription, Guid voterId)
         => new Event(eventName, eventDescription, voterId);
@@ -47,12 +50,14 @@ public sealed class Event
         EventState = EventState.Ended;
     }
 
-    public void AddVoter(VoterEvent voter)
+    public void AddVoterEvent(VoterEvent voter)
     {
         var voterId = voter.VoterId;
         
-        if(VoterEvents.All(voterEvent => voterEvent.VoterId != voterId))
-            VoterEvents.Add(voter);
+        if(VoterEvents.Any(voterEvent => voterEvent.VoterId == voterId))
+            throw new VoterAlreadySignedException($"Voter is already signed to event {Id}.");
+        
+        VoterEvents.Add(voter);
     }
 
     // public void Reset()

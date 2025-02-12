@@ -1,6 +1,7 @@
 ﻿using EVS.App.Application.Abstractions;
 using EVS.App.Application.Errors;
 using EVS.App.Domain.Abstractions;
+using EVS.App.Domain.Abstractions.Repositories;
 using EVS.App.Domain.Events;
 
 namespace EVS.App.Application.UseCases.Events.ListEvents;
@@ -14,7 +15,7 @@ public sealed class LoadEventsHandler(
     {
         try
         {
-            var result = await eventRepository.GetEventsPageAsync(cancellationToken: cancellationToken);
+            var result = await eventRepository.GetManyAsPageAsync(cancellationToken: cancellationToken);
             
             return result.ToArray();
         }
