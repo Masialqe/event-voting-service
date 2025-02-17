@@ -9,23 +9,18 @@ namespace EVS.App.Infrastructure.Notifiers;
 public class SignalRNotifier(
     IHubContext<EventHub, IEventHub> hubContext) : IEventNotifier
 {
-    public async Task BroadcastEventStarted(string groupName)
-    {
-        await hubContext.Clients.Groups(groupName).EventStarted();
-    }
+    public async Task BroadcastEventStarted(string groupName) 
+        => await hubContext.Clients.Groups(groupName).EventStarted();
 
-    public async Task BroadcastEventEnded(string groupName)
-    {
-        await hubContext.Clients.Groups(groupName).EventEnded();
-    }
+    public async Task BroadcastEventEnded(string groupName) 
+        => await hubContext.Clients.Groups(groupName).EventEnded();
 
-    public async Task BroadcastEventsVisitorAdded(string groupName, VoterEvent voterEvent)
-    {
-        await hubContext.Clients.Groups(groupName).VoterAdded(voterEvent);
-    }
-    
-    public async Task BroadcastErrorReponseToClient(string connectionId, Error error)
-    {
-        await hubContext.Clients.Client(connectionId).ErrorOccured(error);
-    }
+    public async Task BroadcastEventsVisitorAdded(string groupName, VoterEvent voterEvent) 
+        => await hubContext.Clients.Groups(groupName).VoterAdded(voterEvent);
+
+    public async Task ReturnErrorReponseToClient(string connectionId, Error error) 
+        => await hubContext.Clients.Client(connectionId).ErrorOccured(error);
+
+    public async Task VisitorAddedSuccessfullyResponse(string connectionId, string eventId) 
+        => await hubContext.Clients.Client(connectionId).VoterAddedSuccessfully(eventId);
 }

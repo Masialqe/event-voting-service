@@ -10,4 +10,7 @@ public interface IEventHub
     Task EventRestarted();
     Task ErrorOccured(Error error);
     Task VoterAdded(VoterEvent voterEvent);
+    
+    //notification responses
+    Task VoterAddedSuccessfully(string eventId);
 }

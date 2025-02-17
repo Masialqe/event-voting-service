@@ -9,5 +9,7 @@ public interface IEventNotifier
     Task BroadcastEventEnded(string groupName);
     Task BroadcastEventsVisitorAdded(string groupName, VoterEvent voterEvent);
 
-    Task BroadcastErrorReponseToClient(string connectionId, Error error);
+    Task ReturnErrorReponseToClient(string connectionId, Error error);
+
+    Task VisitorAddedSuccessfullyResponse(string connectionId, string eventId);
 }

@@ -31,6 +31,10 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
             .HasConversion<int>()
             .HasColumnName("Event_Type");
         
+        builder.Property(x => x.VoterLimit)
+            .HasColumnType("INTEGER")
+            .HasColumnName("Event_VoterLimit");
+        
         builder.Property(x => x.CreatedAt)
             .HasColumnName("Event_CreatedAt");
         

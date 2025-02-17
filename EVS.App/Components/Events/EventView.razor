@@ -1,37 +1,54 @@
 ﻿@page "/event/{id}"
 @using EVS.App.Application.UseCases.Events.GetEventById
 @using EVS.App.Domain.Events
+@using EVS.App.Shared.Hub
+@using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.SignalR.Client
 
 @inject GetEventByIdHandler GetEventByIdHandler
+@inject SignalRService SignalRService
 
-@implements IAsyncDisposable
+@attribute [Authorize]
+@rendermode InteractiveServer
 
-    <div class="container-fluid shadow h-100">
+<div class="container-fluid shadow h-100">
         @if (_eventData is not null)
         {
             <div class="d-flex flex-column align-items-center h-100">
                 <div class="flex-grow-0 d-flex flex-column align-items-center w-100">
                     <h1>"@_eventData.Name"</h1>
                     <p> <i>@_eventData.Description</i></p>
+                    <p> Instance: @SignalRService.InstanceId </p>
+                    
                 </div>
                 
-                <p>@_eventData.VoterEvents.Count</p>
-                
-                @if (_eventData.VoterEvents.Count > 0)
+                @if (_eventData.EventState == EventState.Created)
                 {
-                    @foreach (var voter in _eventData.VoterEvents)
-                    {
-                        <p>@voter.Voter?.Username - @voter.HasVoted </p> 
-                    }
+                    <EventVoterList Voters="@_eventData.VoterEvents" />
+                }
+
+                @if (_eventData.EventState == EventState.Started)
+                {
+                    <EventVoteBoard Event="@_eventData"/>
+                }
+
+                @if (_eventData.EventState == EventState.Ended)
+                {
+                    <EventScoreBoard/>
                 }
             </div>
         }
+        <div class="p-3">
+            <EventAdminControll 
+                Event="@_eventData"
+                OnEventStarted="HandleEventStarted"
+                OnEventEnded="HandleEventEnded"/>
+        </div>
     </div>
 
 @code {
-    private HubConnection?_hubConnection = default;
     private Event? _eventData = default;
+    private string? _eventIdAsString;
     
     [Parameter] public string Id { get; set; } = string.Empty;
 
@@ -39,18 +56,39 @@
     {
         var request = new GetEventByIdRequest(Id);
         var result = await GetEventByIdHandler.Handle(request);
-
+    
         if (result.IsSuccess)
             _eventData = result.Value;
+        
+        await StartSignalRConnection();
+        ListenToSignalREvents();
     }
 
-
-    public async ValueTask DisposeAsync()
+    protected override void OnAfterRender(bool firstRender)
     {
-        if(_hubConnection is not null)
-        {
-            await _hubConnection.DisposeAsync();
-        }
+        _eventIdAsString = _eventData?.Id.ToString();
     }
 
+    private async Task StartSignalRConnection()
+    {
+        await SignalRService.StartAsync();
+        await SignalRService.HubConnection.InvokeAsync("JoinGroupAsync", _eventData?.Id);
+    }
+    
+    private void ListenToSignalREvents()
+    {
+        SignalRService.HubConnection.On("EventStarted", StartEventAsync);
+    }
+
+    private async Task HandleEventStarted() 
+        => await SignalRService.HubConnection.InvokeAsync("StartEventAsync", _eventIdAsString);
+
+    private async Task HandleEventEnded()
+        => await SignalRService.HubConnection.InvokeAsync("EndEventAsync", _eventIdAsString);
+
+    private async Task StartEventAsync()
+    {
+        _eventData?.Start();
+        await InvokeAsync(StateHasChanged);
+    }
 }

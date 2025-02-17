@@ -7,20 +7,44 @@ using Microsoft.EntityFrameworkCore;
 namespace EVS.App.Infrastructure.Database.Repositories;
 
 public class VoterRepository(
-    ApplicationDbContext context) : GenericRepository<Voter>(context), IVoterRepository
+    IDbContextFactory<ApplicationDbContext> contextFactory) : GenericRepository<Voter>(contextFactory), IVoterRepository
 {
-    private readonly DbSet<Voter> _voters = context.Voters;
-    private readonly ApplicationDbContext _context = context;
-    
     public async Task<Voter?> GetVoterByNameAsync(string name, 
         CancellationToken cancellationToken = default)
-        => await _voters.FirstOrDefaultAsync(x => x.Username == name, cancellationToken);
+    {
+        return await ExecuteAsync(
+            context => context.Voters.FirstOrDefaultAsync(x => x.Username == name, cancellationToken), 
+            cancellationToken
+        );
+    }
 
     public async Task<Voter?> GetVoterByEmailAsync(string email, 
         CancellationToken cancellationToken = default)
-        => await _voters.FirstOrDefaultAsync(x => x.Email == email, cancellationToken);
-    
+    {
+        return await ExecuteAsync(
+            context => context.Voters.FirstOrDefaultAsync(x => x.Email == email, cancellationToken), 
+            cancellationToken
+        );
+    }
+
     public async Task<Voter?> GetVoterByUserIdAsync(string userId, 
         CancellationToken cancellationToken = default)
-        => await _voters.FirstOrDefaultAsync(x => x.UserId == userId, cancellationToken);
+    {
+        return await ExecuteAsync(
+            context => context.Voters.FirstOrDefaultAsync(x => x.UserId == userId, cancellationToken), 
+            cancellationToken
+        );
+    }
+
+    public async Task<Voter?> GetIncludingDependencies(Guid voterId,
+        CancellationToken cancellationToken = default)
+    {
+        return await ExecuteAsync(
+            context => context.Voters
+                .Include(x => x.VoterEvents)
+                .FirstOrDefaultAsync(x => x.Id == voterId, cancellationToken), 
+            cancellationToken
+        );
+    }
+
 }

@@ -1,10 +1,12 @@
 ﻿@using System.ComponentModel.DataAnnotations
 @using EVS.App.Application.UseCases.Events.CreateEvent
+@using EVS.App.Domain.Events
 
 @inject CreateEventHandler CreateEventHandler
 
 <EditForm Model="Input" FormName="AddEventForm" OnValidSubmit="HandleFormSubmit">
     <DataAnnotationsValidator/>
+    
     <div class="mb-3">
         <InputText
             class="form-control"
@@ -13,12 +15,37 @@
         />
         <ValidationMessage For="@(() => Input.Name)" />
     </div>
+    
     <div class="mb-3">
         <InputText class="form-control"
                    @bind-Value="@Input.Description"
                    placeholder="Enter event description..."
         />
         <ValidationMessage For="@(() => Input.Description)" />
+    </div>
+    
+    <div class="mb-3">
+        <InputNumber
+            class="form-control"
+            @bind-Value="Input.PlayerLimit"
+            TValue="int"
+            placeholder="Enter player limit..."
+        />
+        <ValidationMessage For="@(() => Input.PlayerLimit)" />
+    </div>
+    
+    <div class="mb-3 d-flex flex-row">
+        <div class="mb-3 p-1">
+            <InputCheckbox id="scaleVoteBox" @bind-Value="@_isSingleVoteType" @onclick="SetSingleVoteEventType" class="form-check-input" /> 
+            <label for="scaleVoteBox" class="form-check-label">
+                Single vote </label>
+        </div>
+        <div class="mb-3 p-1">
+            <InputCheckbox id="singleVoteBox" @bind-Value="@_isScaleVoteType" @onclick="SetScaleVoteEventType" class="form-check-input"/>
+            <label for="singleVoteBox" class="form-check-label">
+                Scale vote </label>
+        </div>
+        <ValidationMessage For="@(() => Input.Types)" />
     </div>
     <div class="mb-3 d-flex justify-content-center">
         <button type="submit"
@@ -31,20 +58,39 @@
 @code {
     
     [SupplyParameterFromForm] private InputModel Input { get; set; } = new();
-    
-    private sealed class InputModel
-    {
-        [Required] [MinLength(5)] public string Name { get; set; } = string.Empty;
-        [Required] [MinLength(10)] public string Description { get; set; } = string.Empty;
-    }
 
+    private bool _isSingleVoteType = false;
+    private bool _isScaleVoteType = false;
+    
     private async Task HandleFormSubmit()
     {
-        var request = CreateEventRequest.Create(Input.Name, Input.Description);
+        var request = CreateEventRequest.Create(Input.Name, Input.Description, Input.Types, Input.PlayerLimit);
         var result = await CreateEventHandler.Handle(request);
 
+        //todo: failure
         if (result.IsSuccess)
-            Input = new();
+            ResetFormFields();
     }
 
+    private void SetSingleVoteEventType()
+    {
+        _isScaleVoteType = false;
+        SetEventType();
+    }
+
+    private void SetScaleVoteEventType()
+    {
+        _isSingleVoteType = false;
+        SetEventType();
+    }
+
+    private void SetEventType()
+     => Input.Types = _isScaleVoteType ? EventTypes.ScaleVote : EventTypes.SingleVote;
+
+    private void ResetFormFields()
+    {
+        Input = new();
+        _isScaleVoteType = false;
+        _isSingleVoteType = false;
+    }
 }

@@ -1,5 +1,8 @@
 ﻿namespace EVS.App.Domain.Events;
 
+/// <summary>
+/// Represents an event state (progress).
+/// </summary>
 public enum EventState
 {
     /// <summary>

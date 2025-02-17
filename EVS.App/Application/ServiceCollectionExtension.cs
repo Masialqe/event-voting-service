@@ -10,6 +10,7 @@ using EVS.App.Application.UseCases.Voters.LoginVoter;
 using EVS.App.Domain.Events;
 using EVS.App.Domain.Voters;
 using EVS.App.Infrastructure.Database.Configurations;
+using EVS.App.Infrastructure.Notifiers;
 
 namespace EVS.App.Application;
 
@@ -22,6 +23,7 @@ public static class ServiceCollectionExtension
         services.AddScoped<ConfirmVoterEmailHandler>();
         services.AddScoped<LoginVoterHandler>();
         services.AddScoped<GetLoggedVoterHandler>();
+        services.AddScoped<GetVoterByIdHandler>();
         
         //events
         services.AddScoped<CreateEventHandler>();
@@ -43,7 +45,7 @@ public static class ServiceCollectionExtension
     
     public static WebApplication MapHubs(this WebApplication app)
     {
-        app.MapHub<EventHub>("/eventHub");
+        app.MapHub<EventHub>(HubConfig.EVENT_HUB_URL);
         return app;
     }
     
@@ -51,9 +53,9 @@ public static class ServiceCollectionExtension
     {
         services.AddSignalR(options =>
         {
-            options.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
-            options.MaximumReceiveMessageSize = 1024 * 1024 * 5; //5MB
-            options.EnableDetailedErrors = true;
+            options.ClientTimeoutInterval = TimeSpan.FromSeconds(HubConfig.HUB_TIMEOUT_SECONDS);
+            options.MaximumReceiveMessageSize = HubConfig.HUB_MAX_MESSAGE_SIZE;
+            options.EnableDetailedErrors = HubConfig.HUB_ENABLE_DETAILED_ERRORS;
         });
 
         return services;

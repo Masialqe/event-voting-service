@@ -18,8 +18,10 @@ public sealed class CreateEventHandler(
             var currentLoggedVoter = await voterAccessor.GetCurrentLoggedVoterAsync(cancellationToken);
             var voterId = currentLoggedVoter.Value.Id;
 
-            var result = await eventService.CreateEventAsync(request.EventName, request.EventDescription, voterId,
-                cancellationToken);
+            var createEventDto = CreateEventDto.Create(request.EventName, request.EventDescription, 
+                voterId, request.EventTypes, request.PlayerLimit);
+            
+            var result = await eventService.CreateEventAsync(createEventDto, cancellationToken);
             
             return result;
         }

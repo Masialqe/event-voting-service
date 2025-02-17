@@ -1,0 +1,36 @@
+﻿@using EVS.App.Domain.Events
+<h3>EventScoreBoard</h3>
+
+<div class="d-flex flex-column align-items-center">
+    <table class="table">
+        <thead>
+        <tr>
+            <th> Nickname </th>
+            <th> Score </th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var visitor in _votersScores)
+        {
+            <tr>
+                <td>@visitor.Key</td>
+                <td>@visitor.Value</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    [Parameter] public Event? Event { get; set; }
+
+    private Dictionary<string, int> _votersScores = [];
+
+    protected override void OnInitialized()
+    {
+        if (Event != null)
+        {
+            _votersScores = Event.GetVotersScores();
+        }
+    }
+}

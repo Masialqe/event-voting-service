@@ -1,0 +1,14 @@
+﻿@using EVS.App.Domain.VoterEvents
+<div>
+    @if (Voters is { Count: > 0 })
+    {
+        @foreach (var voter in Voters)
+        {
+            <p>@voter.Voter?.Username</p>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public ICollection<VoterEvent>? Voters { get; set; }
+}

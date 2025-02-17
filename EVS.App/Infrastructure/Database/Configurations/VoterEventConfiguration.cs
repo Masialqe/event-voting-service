@@ -30,5 +30,9 @@ public class VoterEventConfiguration : IEntityTypeConfiguration<VoterEvent>
             .IsRequired()
             .HasColumnName("VoterEvent_HasVoted")
             .HasDefaultValue(false);
+
+        builder.Property(x => x.RowVersion)
+            .HasColumnName("VoterEvent_RowVersion")
+            .IsRowVersion();
     }
 }

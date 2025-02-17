@@ -15,4 +15,7 @@ public interface IVoterRepository : IGenericRepository<Voter>
     Task<Voter?> GetVoterByUserIdAsync(
         string userId, 
         CancellationToken cancellationToken = default);
+
+    Task<Voter?> GetIncludingDependencies(Guid voterId,
+        CancellationToken cancellationToken = default);
 }

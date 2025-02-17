@@ -12,16 +12,28 @@ public class IdentityVoterAccessor(
     IdentityUserAccessor identityUserAccessor,
     IHttpContextAccessor contextAccessor) : IVoterAccessor
 {
+    
+    private readonly SemaphoreSlim _semaphore = new(1, 1);
+    
     public async Task<Result<Voter>> GetCurrentLoggedVoterAsync(CancellationToken cancellationToken = default)
     {
-        if (contextAccessor.HttpContext is not { } httpContext)
-            return IdentityErrors.InvalidHttpContextError;
+        try
+        {
+            await _semaphore.WaitAsync(cancellationToken);
+            
+            if (contextAccessor.HttpContext is not { } httpContext)
+                return IdentityErrors.InvalidHttpContextError;
 
-        var voterIdentity = await identityUserAccessor.GetRequiredUserAsync(httpContext);
+            var voterIdentity = await identityUserAccessor.GetRequiredUserAsync(httpContext);
 
-        if (voterIdentity is null)
-            return IdentityErrors.UserNotFoundError;
-        
-        return await voterRepository.GetVoterByUserIdAsync(voterIdentity.Id, cancellationToken);
+            if (voterIdentity is null)
+                return IdentityErrors.UserNotFoundError;
+
+            return await voterRepository.GetVoterByUserIdAsync(voterIdentity.Id, cancellationToken);
+        }
+        finally
+        {
+            _semaphore.Release();
+        }
     }
 }

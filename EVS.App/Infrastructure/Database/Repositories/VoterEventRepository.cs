@@ -1,5 +1,4 @@
-﻿using EVS.App.Domain.Abstractions;
-using EVS.App.Domain.Abstractions.Entities;
+﻿using EVS.App.Domain.Abstractions.Entities;
 using EVS.App.Domain.Abstractions.Repositories;
 using EVS.App.Domain.Events;
 using EVS.App.Domain.Exceptions;
@@ -11,30 +10,27 @@ using Microsoft.EntityFrameworkCore;
 namespace EVS.App.Infrastructure.Database.Repositories;
 
 public sealed class VoterEventRepository(
-    ApplicationDbContext context) : GenericRepository<VoterEvent>(context), IVoterEventRepository
+    IDbContextFactory<ApplicationDbContext> contextFactory) : GenericRepository<VoterEvent>(contextFactory), IVoterEventRepository
 {
-    private readonly DbSet<Event> _events = context.Events;
-    private readonly DbSet<Voter> _voters = context.Voters;
-    private readonly ApplicationDbContext _context = context;
-
     public async Task LinkEventAndVoterAsync(VoterEvent voterEvent, 
         CancellationToken cancellationToken = default)
     {
-        var voterState = await _voters.GetByIdIncludingEvents(voterEvent.VoterId, cancellationToken)
-                ?? throw new InvalidOperationException("Voter event was not found");
+        await SaveAsync(async context =>
+        {
+            var voterState = await context.Set<Voter>().GetByIdIncludingEvents(voterEvent.VoterId, cancellationToken)
+                             ?? throw new InvalidOperationException($"Voter was not found {voterEvent.VoterId}");
         
-        var eventState = await _events.GetByIdIncludingEvents(voterEvent.EventId, cancellationToken)
-                ?? throw new EventNotFoundException("Event was not found");
+            var eventState = await context.Set<Event>().GetByIdIncludingEvents(voterEvent.EventId, cancellationToken)
+                             ?? throw new EventNotFoundException("Event was not found");
         
-        voterState.AddVoterEvent(voterEvent);
-        eventState.AddVoterEvent(voterEvent);
+            eventState.AddVoterEvent(voterEvent);
+            voterState.AddVoterEvent(voterEvent);
 
-        _context.VoterEvent.Add(voterEvent);
-        
-        await _context.SaveChangesAsync(cancellationToken);
+            context.VoterEvent.Add(voterEvent);
+        }, cancellationToken);
     }
-
 }
+
 internal static class VoterEventRepositoryExtensions
 {
     public static async Task<T?> GetByIdIncludingEvents<T>(this DbSet<T> dbSet, Guid id,
@@ -45,4 +41,5 @@ internal static class VoterEventRepositoryExtensions
             .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 }
+
 

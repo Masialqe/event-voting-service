@@ -1,0 +1,103 @@
+﻿@using EVS.App.Application.UseCases.Voters.GetVoter
+@using EVS.App.Domain.Events
+@using EVS.App.Domain.Voters
+
+@inject GetLoggedVoterHandler GetLoggedVoterHandler
+
+@inject ILogger<EventAdminControll> Logger
+
+@if (Event is not null && _isAdminPanelVisible)
+{
+    <div class="d-flex flex-column justify-content-center align-items-center m-2">
+        <button class="btn custom-btn mb-2 w-50"
+                style="background-color: #DE871D;"
+                disabled="@_isStartDisabled"
+                @onclick="async () => await HandleStartEventClick()">
+             Start Event
+        </button>
+        <button class="btn custom-btn mb-2 w-50"
+                style="background-color: #DE871D;"
+                disabled="@_isResetDisabled"
+                @onclick="async () => await HandleResetEventClick()">
+            Reset Event
+        </button>
+        <button class="btn custom-btn mb-2 w-50"
+                style="background-color: #DE871D;"
+                disabled="@_isEndDisabled"
+                @onclick="async () => await HandleEndEventClick()">
+            End Event
+        </button>
+    </div>
+}
+
+@code {
+    private bool _isStartDisabled = false;
+    private bool _isEndDisabled = true;
+    private bool _isResetDisabled = true;
+    private bool _isAdminPanelVisible = false;
+    private Voter? _voter;
+
+    [Parameter] public Event? Event { get; set; }
+    [Parameter] public EventCallback OnEventStarted { get; set; }
+    [Parameter] public EventCallback OnEventEnded { get; set; }
+    [Parameter] public EventCallback OnEventReset { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var request = GetloggedVoterRequest.Create();
+        var result = await GetLoggedVoterHandler.Handle(request);
+        //todo: handle result
+        _voter = result.Value;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        _isAdminPanelVisible = IsUserEventCreator();
+        HandleButtonState();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private bool IsUserEventCreator()
+        => _voter?.Id == Event?.Voter?.Id;
+
+    private void HandleButtonState()
+    {
+        if (Event is null) return;
+
+        var (startButton, resetButton, endButton) = Event.EventState switch
+        {
+            EventState.Ended  => (true, true, true),
+            EventState.Created => (false, true, true),
+            EventState.Started => (true, false, false),
+            _ => (true, true, true) 
+        };
+
+        SetButtonDisableState(startButton, resetButton, endButton);
+    }
+    
+    private async Task HandleStartEventClick()
+    {
+        SetButtonDisableState(true, false, false);
+        await OnEventStarted.InvokeAsync();
+    }
+
+    private async Task HandleResetEventClick()
+    {
+        SetButtonDisableState(false, true, true);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task HandleEndEventClick()
+    {
+        SetButtonDisableState(true, true, true);
+        await OnEventEnded.InvokeAsync();
+    }
+    
+    private void SetButtonDisableState(bool isStartedDisabled, 
+        bool isResetDisabled, bool isEndDisabled)
+    {
+        _isStartDisabled = isStartedDisabled;
+        _isResetDisabled = isResetDisabled;
+        _isEndDisabled = isEndDisabled;
+    }
+}

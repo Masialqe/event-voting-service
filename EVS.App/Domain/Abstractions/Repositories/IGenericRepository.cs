@@ -6,13 +6,16 @@ public interface IGenericRepository<T> where T : class, IEntity
 {
     Task CreateAsync(T entity,
         CancellationToken cancellationToken = default);
-    
-    IQueryable<T> ById(Guid entityId);
+
+    Task<T?> GetByIdAsync(Guid id,
+        CancellationToken cancellationToken = default);
+
+    Task<T?> GetByIdNoTrackingAsync(Guid id,
+        CancellationToken cancellationToken = default);
     
     Task UpdateAsync(T updatedState,
         CancellationToken cancellationToken = default);
     
-
     Task DeleteAsync(Guid entityId,
         CancellationToken cancellationToken = default);
 }

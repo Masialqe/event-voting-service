@@ -3,7 +3,7 @@
 /// <summary>
 /// Available event types.
 /// </summary>
-public enum EventType
+public enum EventTypes
 {
     /// <summary>
     /// Voting based on adding certain amount of points per each voter.

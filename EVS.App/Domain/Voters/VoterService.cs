@@ -17,6 +17,16 @@ public class VoterService(
         return Result.Success();
     }
 
+    public async Task<Result<Voter>> GetVoterAsync(Guid voterId, 
+        CancellationToken cancellationToken = default)
+    {
+        var result = await voterRepository.GetByIdNoTrackingAsync(voterId, cancellationToken);
+
+        return result is null
+            ? VoterErrors.VoterNotFoundError
+            : result;
+    }
+
     private async Task<bool> IsVoterExistsAsync(Voter voter,
         CancellationToken cancellationToken = default)
     {

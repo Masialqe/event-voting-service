@@ -1,5 +1,4 @@
-﻿using EVS.App.Domain.Abstractions;
-using EVS.App.Domain.Abstractions.Repositories;
+﻿using EVS.App.Domain.Abstractions.Repositories;
 using EVS.App.Domain.Events;
 using EVS.App.Infrastructure.Database.Context;
 using Microsoft.EntityFrameworkCore;
@@ -7,39 +6,46 @@ using Microsoft.EntityFrameworkCore;
 namespace EVS.App.Infrastructure.Database.Repositories;
 
 public sealed class EventRepository(
-    ApplicationDbContext context) : GenericRepository<Event>(context), IEventRepository
+    IDbContextFactory<ApplicationDbContext> contextFactory) 
+    : GenericRepository<Event>(contextFactory), IEventRepository
 {
-    private readonly DbSet<Event> _events = context.Events;
-    private readonly ApplicationDbContext _context = context;
-    
+    private readonly IDbContextFactory<ApplicationDbContext> _contextFactory = contextFactory;
+
     public async Task<Event?> GetIncludingDependencies(Guid eventId, 
         CancellationToken cancellationToken = default)
-        => await ById(eventId).IncludeVoter().IncludeVoterEvents().FirstOrDefaultAsync(cancellationToken);
+    {
+        return await ExecuteAsync(
+            context => context.Set<Event>()
+                .Where(e => e.Id == eventId)
+                .IncludeVoter()
+                .IncludeVoterEvents()
+                .FirstOrDefaultAsync(cancellationToken),
+            cancellationToken);
+    }
     
     public async Task<Event?> GetByNameAsync(string eventName, 
         CancellationToken cancellationToken = default)
-        => await _events.AsNoTracking().FirstOrDefaultAsync(x => x.Name == eventName, cancellationToken);
-    
-    public async Task<Event?> GetByIdAsync(Guid eventId, bool includeVoters = false, bool includeCreator = false,
-        CancellationToken cancellationToken = default)
-        => await ById(eventId).AsNoTracking().FirstOrDefaultAsync(cancellationToken);
-    
-    public Task<IEnumerable<Event>> GetManyAsPageAsync(int offset = 0, int take = 10, 
-        CancellationToken cancellationToken = default)
     {
-       var result = _events.AsNoTracking().Skip(offset).Take(take).AsEnumerable();
-       return Task.FromResult<IEnumerable<Event>>(result);
+        return await ExecuteAsync(
+            context => context.Set<Event>()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Name == eventName, cancellationToken),
+            cancellationToken);
     }
     
-    public Task<IEnumerable<Event>> GetFullEventsPageAsync(int offset = 0, int take = 10, 
+    public async Task<IEnumerable<Event>> GetManyAsPageAsync(int offset = 0, int take = 10, 
         CancellationToken cancellationToken = default)
-    {
-        var result = 
-            _events
-                .IncludeVoter().IncludeVoterEvents()
-                .AsNoTracking().Skip(offset).Take(take).AsEnumerable();
-        
-        return Task.FromResult<IEnumerable<Event>>(result);
+    { 
+        await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
+    
+        var result = await context.Set<Event>()
+            .AsNoTracking()
+            .IncludeVoterEvents()
+            .Skip(offset)
+            .Take(take)
+            .ToListAsync(cancellationToken);
+    
+        return result;
     }
 }
 

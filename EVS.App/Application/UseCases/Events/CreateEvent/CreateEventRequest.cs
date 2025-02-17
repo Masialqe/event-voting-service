@@ -1,7 +1,10 @@
-﻿namespace EVS.App.Application.UseCases.Events.CreateEvent;
+﻿using EVS.App.Domain.Events;
 
-public sealed record CreateEventRequest(string EventName, string EventDescription)
+namespace EVS.App.Application.UseCases.Events.CreateEvent;
+
+public sealed record CreateEventRequest(string EventName, string EventDescription, 
+    EventTypes EventTypes, int PlayerLimit)
 {
-    public static CreateEventRequest Create(string eventName, string eventDescription) 
-        => new CreateEventRequest(eventName, eventDescription);
+    public static CreateEventRequest Create(string eventName, string eventDescription, EventTypes eventTypes, int playerLimit) 
+        => new CreateEventRequest(eventName, eventDescription, eventTypes, playerLimit);
 };

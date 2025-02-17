@@ -1,18 +1,32 @@
 ﻿@using EVS.App.Application.UseCases.Events.ListEvents
+@using EVS.App.Domain.Abstractions
 @using EVS.App.Domain.Events
+@using EVS.App.Shared.Hub
+@using Microsoft.AspNetCore.SignalR.Client
 
 @inject LoadEventsHandler LoadEventsHandler
+@inject NavigationManager NavigationManager
+@inject SignalRService SignalRService
+@inject IHttpContextAccessor HttpContextAccessor
+
+@inject ILogger<EventsList> Logger
+
+@* @implements IAsyncDisposable *@
 
 <div class="d-flex justify-content-center align-content-center flex-wrap">
-    @if(_events.Length > 0)
+    @if(_events is { Length: > 0})
     {
         @foreach(var ev in _events)
         {
             <div class="p-2">
-                <EventCard @key="ev.Id" Event="@ev" />
+                <EventCard 
+                    @key="ev.Id" 
+                    Event="@ev"
+                    OnVoterJoinedEvent="HandleVoterAddedToEvent"/>
             </div>
-
         }
+        <p> -- @_events.Length -- </p>
+        <p> Instance: @SignalRService.InstanceId </p>
     }
     else
     {
@@ -26,6 +40,7 @@
 
 @code {
     private Event[] _events = default!;
+    private string? _connectionId;
 
     protected override async Task OnInitializedAsync()
     {
@@ -33,6 +48,41 @@
 
         if (result.IsSuccess)
             _events = result.Value;
+
+        await StartSignalRConnection();
+        ListenToSignalREvents();
     }
 
+    private async Task HandleVoterAddedToEvent((string voterId, string eventId) input)
+    {
+        await SignalRService.HubConnection.InvokeAsync("AddVisitorToEventAsync", input.voterId, input.eventId);
+    }
+
+    private void HandleVoterAddedToEventError(Error error)
+    {
+        //todo: error toast
+    }
+
+    private void HandleVoterAddedSuccesfoultToEvent(string eventId)
+    {
+        NavigationManager.NavigateTo($"/event/{eventId}");
+    }
+
+    private async Task StartSignalRConnection()
+    {
+        _connectionId = HttpContextAccessor?.HttpContext?.Connection.Id;
+        await SignalRService.StartAsync();
+        await SignalRService.HubConnection.InvokeAsync("JoinGroupAsync", _connectionId);
+    }
+
+    private void ListenToSignalREvents()
+    {
+        SignalRService.HubConnection.On<Error>("ErrorOccured", HandleVoterAddedToEventError);
+        SignalRService.HubConnection.On<string>("VoterAddedSuccessfully", HandleVoterAddedSuccesfoultToEvent);
+    }
+
+    // public async ValueTask DisposeAsync()
+    // {
+    //     await SignalRService.HubConnection.InvokeAsync("RemoveFromGroupAsync", _connectionId);
+    // }
 }

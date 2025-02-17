@@ -1,0 +1,19 @@
+﻿@using EVS.App.Domain.Events
+
+@if (Event != null)
+{
+    <div>
+        @if (Event.EventType == EventTypes.ScaleVote)
+        {
+            <EventScaleVoteComponent/>
+        }
+        else
+        {
+            <EventSingleVoteComponent/>
+        }
+    </div>
+}
+
+@code {
+    [Parameter] public Event? Event { get; set; }
+}
