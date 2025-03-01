@@ -1,4 +1,5 @@
 ﻿using EVS.App.Domain.Abstractions;
+using EVS.App.Domain.Abstractions.Repositories;
 using EVS.App.Domain.Voters;
 using EVS.App.Infrastructure.Database.Context;
 using Microsoft.EntityFrameworkCore;
@@ -6,51 +7,45 @@ using Microsoft.EntityFrameworkCore;
 namespace EVS.App.Infrastructure.Database.Repositories;
 
 public class VoterRepository(
-    ApplicationDbContext context) : IVoterRepository
+    IDbContextFactory<ApplicationDbContext> contextFactory) : GenericRepository<Voter>(contextFactory), IVoterRepository
 {
-    public async Task<Result> AddVoterAsync(Voter voter, CancellationToken cancellationToken = default)
+    public async Task<Voter?> GetVoterByNameAsync(string name, 
+        CancellationToken cancellationToken = default)
     {
-        try
-        {
-            await context.Voters.AddAsync(voter, cancellationToken);
-            await context.SaveChangesAsync(cancellationToken);
-            
-            return Result.Success();
-        }
-        catch (Exception ex)
-        {
-            //TODO Infrasttructure errors
-            return (Error)ex;
-        }
-    }
-  
-    public async Task<Result<Voter>> GetVoterByNameAsync(string name, CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            var result = await context.Voters.FirstOrDefaultAsync(x => x.Username == name, cancellationToken);
-
-            return result;
-        }
-        catch (Exception ex)
-        {
-            //TODO Infrasttructure errors
-            return (Error)ex;
-        }
+        return await ExecuteAsync(
+            context => context.Voters.AsNoTracking().FirstOrDefaultAsync(x => x.Username == name, cancellationToken), 
+            cancellationToken
+        );
     }
 
-    public async Task<Result<Voter>> GetVoterByEmailAsync(string email, CancellationToken cancellationToken = default)
+    public async Task<Voter?> GetVoterByEmailAsync(string email, 
+        CancellationToken cancellationToken = default)
     {
-        try
-        {
-            var result = await context.Voters.FirstOrDefaultAsync(x => x.Email == email, cancellationToken);
-
-            return result;
-        }
-        catch (Exception ex)
-        {
-            //TODO Infrasttructure errors
-            return (Error)ex;
-        }
+        return await ExecuteAsync(
+            context => context.Voters.AsNoTracking().FirstOrDefaultAsync(x => x.Email == email, cancellationToken), 
+            cancellationToken
+        );
     }
+
+    public async Task<Voter?> GetVoterByUserIdAsync(string userId, 
+        CancellationToken cancellationToken = default)
+    {
+        return await ExecuteAsync(
+            context => context.Voters.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == userId, cancellationToken), 
+            cancellationToken
+        );
+    }
+
+    public async Task<Voter?> GetIncludingDependencies(Guid voterId,
+        CancellationToken cancellationToken = default)
+    {
+        return await ExecuteAsync(
+            context => context.Voters
+                .AsNoTracking()
+                .Include(x => x.VoterEvents)
+                .FirstOrDefaultAsync(x => x.Id == voterId, cancellationToken), 
+            cancellationToken
+        );
+    }
+
 }

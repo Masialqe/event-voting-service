@@ -1,0 +1,119 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using EVS.App.Application.UseCases.Events.CreateEvent
+@using EVS.App.Domain.Events
+
+@inject CreateEventHandler CreateEventHandler
+
+<EditForm Model="Input" FormName="AddEventForm" OnValidSubmit="HandleFormSubmit">
+    <DataAnnotationsValidator/>
+    
+    <div class="mb-3">
+        <InputText
+            class="form-control"
+            @bind-Value="@Input.Name"
+            placeholder="Enter event name..."
+        />
+        <ValidationMessage For="@(() => Input.Name)" />
+    </div>
+    
+    <div class="mb-3">
+        <InputText class="form-control"
+                   @bind-Value="@Input.Description"
+                   placeholder="Enter event description..."
+        />
+        <ValidationMessage For="@(() => Input.Description)" />
+    </div>
+    
+    <div class="mb-3">
+        <label for="player-limit">Max players count </label>
+        <InputNumber
+            class="form-control"
+            id="player-limit"
+            @bind-Value="Input.PlayerLimit"
+            TValue="int"
+            min="1"
+            placeholder="Enter player limit..."/>
+        <ValidationMessage For="@(() => Input.PlayerLimit)"/>
+    </div>
+
+    <div class="mb-3 d-flex flex-row">
+        <div class="mb-3 p-1">
+            <InputCheckbox id="singleVoteBox"
+                           @bind-Value="_isSingleVoteType"
+                           @onclick="() => HandleVoteSelection(EventTypes.SingleVote, 
+                               ref _isSingleVoteType, ref _isScaleVoteType)"
+                           class="form-check-input" />
+            <label for="singleVoteBox" class="form-check-label">Single vote</label>
+        </div>
+        <div class="mb-3 p-1">
+            <InputCheckbox id="scaleVoteBox"
+                           @bind-Value="_isScaleVoteType"
+                           @onclick="() => HandleVoteSelection(EventTypes.ScaleVote, 
+                               ref _isScaleVoteType, ref _isSingleVoteType)"
+                           class="form-check-input" />
+            <label for="scaleVoteBox" class="form-check-label">Scale vote</label>
+        </div>
+        <ValidationMessage For="@(() => Input.Type)" />
+    </div>
+    @if (Input.Type == EventTypes.ScaleVote)
+    {
+        <div class="mb-3">
+            <label for="points-limit">Max points to earn </label>
+            <InputNumber
+                class="form-control"
+                id="points-limit"
+                @bind-Value="Input.PointsLimit"
+                TValue="int"
+                min="1"
+                placeholder="Enter player limit..."/>
+            <ValidationMessage For="@(() => Input.PointsLimit)"/>
+        </div>
+    }
+    
+    <div class="mb-3 d-flex justify-content-center">
+        <button type="submit"
+                class="btn btn-primary">
+            + Add
+        </button>
+    </div>
+</EditForm>
+
+@code {
+    
+    [SupplyParameterFromForm] private InputModel Input { get; set; } = new();
+
+    private bool _isSingleVoteType = false;
+    private bool _isScaleVoteType = false;
+    
+    private async Task HandleFormSubmit()
+    {
+        var request = CreateEventRequest.Create(Input.Name, Input.Description, Input.Type, Input.PlayerLimit, Input.PointsLimit);
+        var result = await CreateEventHandler.Handle(request);
+
+        //todo: failure
+        if (result.IsSuccess)
+            ResetFormFields();
+    }
+    
+    private void HandleVoteSelection(EventTypes selectedType, 
+        ref bool currentSelection, ref bool otherSelection)
+    {
+        if (currentSelection) 
+        {
+            currentSelection = false;
+        }
+        else
+        {
+            currentSelection = true;
+            otherSelection = false; 
+            Input.Type = selectedType;
+        }
+    }
+
+    private void ResetFormFields()
+    {
+        Input = new();
+        _isScaleVoteType = false;
+        _isSingleVoteType = false;
+    }
+}

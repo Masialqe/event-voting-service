@@ -1,0 +1,66 @@
+﻿@using EVS.App.Application.UseCases.Events.JoinEvent
+@using EVS.App.Application.UseCases.Voters.GetVoter
+@using EVS.App.Domain.Events
+@using EVS.App.Domain.Voters
+
+@inject NavigationManager NavigationManager
+@inject GetLoggedVoterHandler GetLoggedVoterHandler
+@inject JoinEventHandler JoinEventHandler
+
+@if(Event is not null && _loggedVoter is not null)
+{
+    <div class="card" style="width: 18rem;">
+        <div class="card-body">
+            <h5 class="card-title">@Event.Name</h5>
+            <h6 class="card-subtitle mb-2 text-body-secondary">
+                 Players: @Event.VotersCount / @Event.VoterLimit
+            </h6>
+            <p class="card-text">@Event.Description.</p>
+            @if (!Event.IsVoterSigned(_loggedVoter.Id))
+            {
+                <button 
+                    type="button" 
+                    class="btn btn-primary"
+                    @onclick="JoinEventAsync"> Join! </button>
+            }
+            <button
+                type="button"
+                class="btn btn-primary"
+                @onclick="MoveToEventView"> Details </button>
+        </div>
+    </div>
+}
+
+@code {
+    //todo: handle user response
+    [Parameter] public Event? Event { get; set; }
+    [Parameter] public EventCallback<(string voterId, string eventId)> OnVoterJoinedEvent { get; set; }
+
+    private Voter? _loggedVoter;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loggedVoter = await GetLoggedVoterAsync();
+    }
+
+    private async Task<Voter?> GetLoggedVoterAsync()
+    {
+        var loggedVoterResult = await GetLoggedVoterHandler.Handle(new GetloggedVoterRequest());
+
+        if (loggedVoterResult.IsSuccess) return loggedVoterResult.Value;
+
+        return null;
+    }
+
+    private void MoveToEventView()
+    {
+        if(Event is not null)
+            NavigationManager.NavigateTo($"/event/{Event.Id}");
+    }
+    
+    private async Task JoinEventAsync()
+    {
+        var loggedVoterIdAsString = _loggedVoter?.Id.ToString();
+        await OnVoterJoinedEvent.InvokeAsync((loggedVoterIdAsString, Event.Id.ToString()));
+    }
+}

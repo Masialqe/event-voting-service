@@ -12,6 +12,9 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
 
         builder.Property(x => x.Id)
             .HasColumnName("Event_Id");
+        
+        builder.HasIndex(x => x.Id)
+            .IsUnique();
 
         builder.Property(x => x.Name)
             .HasColumnType("varchar(100)")
@@ -22,6 +25,42 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
             .HasColumnType("varchar(500)")
             .HasColumnName("Event_Description")
             .IsRequired(false);
+        
+        builder.Property(x => x.EventState)
+            .HasConversion<int>()
+            .HasColumnName("Event_State");
+        
+        builder.Property(x => x.EventType)
+            .HasConversion<int>()
+            .HasColumnName("Event_Type");
+        
+        builder.Property(x => x.VoterLimit)
+            .HasColumnType("INTEGER")
+            .HasColumnName("Event_VoterLimit");
+        
+        builder.Property(x => x.VotesCount)
+            .HasColumnType("INTEGER")
+            .HasColumnName("Event_VotesCount");
+        
+        builder.Property(x => x.VotersCount)
+            .HasColumnType("INTEGER")
+            .HasColumnName("Event_VotersCount");
+        
+        builder.Property(x => x.PointsLimit)
+            .HasColumnType("INTEGER")
+            .HasColumnName("Event_AvailableVotingPoints");
+        
+        builder.Property(x => x.CreatedAt)
+            .HasColumnName("Event_CreatedAt");
+        
+        builder.Property(x => x.EndedAt)
+            .HasColumnName("Event_EndedAt")
+            .IsRequired(false);
+        
+        builder.HasOne(x => x.Voter)
+            .WithMany(x => x.CreatedEvents)
+            .HasForeignKey(x => x.VoterId)
+            .OnDelete(DeleteBehavior.NoAction);
 
         builder.HasMany(x => x.VoterEvents)
             .WithOne(x => x.Event)

@@ -29,18 +29,58 @@ namespace EVS.App.Migrations.ApplicationDb
                         .HasColumnType("uuid")
                         .HasColumnName("Event_Id");
 
+                    b.Property<int>("AvailableVotingPoints")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("Event_AvailableVotingPoints");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("Event_CreatedAt");
+
                     b.Property<string>("Description")
                         .HasColumnType("varchar(500)")
                         .HasColumnName("Event_Description");
+
+                    b.Property<DateTime?>("EndedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("Event_EndedAt");
+
+                    b.Property<int>("EventState")
+                        .HasColumnType("integer")
+                        .HasColumnName("Event_State");
+
+                    b.Property<int>("EventType")
+                        .HasColumnType("integer")
+                        .HasColumnName("Event_Type");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("varchar(100)")
                         .HasColumnName("Event_Name");
 
+                    b.Property<Guid>("VoterId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("VoterLimit")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("Event_VoterLimit");
+
+                    b.Property<int>("VotersCount")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("Event_VotersCount");
+
+                    b.Property<int>("VotesCount")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("Event_VotesCount");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Event");
+                    b.HasIndex("Id")
+                        .IsUnique();
+
+                    b.HasIndex("VoterId");
+
+                    b.ToTable("Events");
                 });
 
             modelBuilder.Entity("EVS.App.Domain.VoterEvents.VoterEvent", b =>
@@ -59,6 +99,13 @@ namespace EVS.App.Migrations.ApplicationDb
                         .HasDefaultValue(false)
                         .HasColumnName("VoterEvent_HasVoted");
 
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("bytea")
+                        .HasColumnName("VoterEvent_RowVersion");
+
                     b.Property<int>("Score")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
@@ -71,6 +118,9 @@ namespace EVS.App.Migrations.ApplicationDb
                     b.HasKey("Id");
 
                     b.HasIndex("EventId");
+
+                    b.HasIndex("Id")
+                        .IsUnique();
 
                     b.HasIndex("VoterId");
 
@@ -111,6 +161,17 @@ namespace EVS.App.Migrations.ApplicationDb
                     b.ToTable("Voters");
                 });
 
+            modelBuilder.Entity("EVS.App.Domain.Events.Event", b =>
+                {
+                    b.HasOne("EVS.App.Domain.Voters.Voter", "Voter")
+                        .WithMany("CreatedEvents")
+                        .HasForeignKey("VoterId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Voter");
+                });
+
             modelBuilder.Entity("EVS.App.Domain.VoterEvents.VoterEvent", b =>
                 {
                     b.HasOne("EVS.App.Domain.Events.Event", "Event")
@@ -137,6 +198,8 @@ namespace EVS.App.Migrations.ApplicationDb
 
             modelBuilder.Entity("EVS.App.Domain.Voters.Voter", b =>
                 {
+                    b.Navigation("CreatedEvents");
+
                     b.Navigation("VoterEvents");
                 });
 #pragma warning restore 612, 618

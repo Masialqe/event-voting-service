@@ -1,0 +1,102 @@
+﻿@using EVS.App.Application.UseCases.Voters.GetVoter
+@using EVS.App.Application.UseCases.Voters.SetVoterScore
+@using EVS.App.Domain.VoterEvents
+@using EVS.App.Domain.Voters
+
+@inject SetVotersScoresHandler SetVotersScoresHandler
+@inject GetLoggedVoterHandler GetLoggedVoterHandler
+
+<div>
+    @if (Voters is { Count: > 0 } 
+         && _currentLoggedVoter is not null
+         && _currentLoggedVoterState is not null
+         && _votesAsDict is {Count: > 0})
+    {
+        @if (!_currentLoggedVoterState.HasVoted)
+        {
+            <table class="table">
+                <thead>
+                <tr>
+                    <th> Username </th>
+                    <th> Vote </th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var voter in Voters)
+                {
+                    if (voter.RelatedVoterId == _currentLoggedVoter.Id)
+                        continue;
+
+                    <tr @key="voter.Id">
+                        <td>@voter.VoterName</td>
+                        <td>
+                            <div>
+                                <input type="checkbox"
+                                       class="form-check-input"
+                                       id="checkbox_@voter.Id"
+                                       @bind="_votesAsDict[voter.Id]"/>
+                                <label for="checkbox_@voter.Id">Vote</label>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+            <div>
+                <button
+                    class="btn btn-success"
+                    @onclick="HandleScoreSubmit">
+                    Submit
+                </button>
+            </div>
+        }
+        else
+        {
+            <p> Thanks for vote! Now you need to wait for results! </p>
+        }
+    }
+</div>
+
+@code {
+    [Parameter] public Guid EventId { get; set; }
+    [Parameter] public ICollection<VoterEvent>? Voters { get; set; }
+
+    private bool _isSubmitAvailable;
+    private Voter? _currentLoggedVoter;
+    private VoterEvent? _currentLoggedVoterState;
+    private Dictionary<Guid, bool> _votesAsDict = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var currentLoggedUserResult = await GetLoggedVoterHandler.Handle();
+
+        if (currentLoggedUserResult.IsSuccess)
+        {
+            _currentLoggedVoter = currentLoggedUserResult.Value;
+            _currentLoggedVoterState = Voters?.FirstOrDefault(x => x.VoterId == _currentLoggedVoter.Id);
+        }
+        
+        if (Voters is { Count: > 0 })
+        {
+            _votesAsDict = Voters
+                .Where(x => x.VoterId != _currentLoggedVoter?.Id)
+                .ToDictionary(voter => voter.Id, voter => false);
+            _isSubmitAvailable = (Voters.Count - 1) > 0;
+        }
+    }
+
+    //todo: refactor
+    private async Task HandleScoreSubmit()
+    {
+        var resultArray = _votesAsDict
+            .Select(x =>
+                SaveVoterScoreRequest.Create(x.Key, x.Value ? 1 : 0)).ToArray();
+
+        var result = await SetVotersScoresHandler.Handle(SetVotersScoresRequest.Create(
+            resultArray, EventId, _currentLoggedVoter.Id));
+
+        if (result.IsSuccess) _currentLoggedVoterState?.SetHasVoted();
+
+    }
+
+}

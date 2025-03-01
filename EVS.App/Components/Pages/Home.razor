@@ -1,7 +1,20 @@
 ﻿@page "/"
+@using EVS.App.Components.Events
+@using EVS.App.Domain.Abstractions.Repositories
+@using EVS.App.Domain.Events
+@using Microsoft.AspNetCore.Authorization
+
+@attribute [Authorize]
+
+@rendermode InteractiveServer
+
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<CreateEventForm></CreateEventForm>
+<EventsList></EventsList>
 
-Welcome to your new app.
+@code
+{
+
+}

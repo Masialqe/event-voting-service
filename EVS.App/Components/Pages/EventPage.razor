@@ -1,0 +1,19 @@
+﻿@page "/events"
+@using Microsoft.AspNetCore.Authorization
+@using EVS.App.Components.Events
+
+@attribute [Authorize]
+@rendermode InteractiveServer
+
+<div class="container-fluid shadow border-2 d-flex flex-column h-100">
+    <div class="mb-3 d-flex justify-content-center">
+        <h1 class="display-6 mt-4"> Tablica wydarzeń </h1>
+    </div>
+    <div class="mb-3 flex-grow-1">
+        <EventsList />
+    </div>
+</div>
+
+@code {
+    
+}

@@ -47,6 +47,7 @@ public static class ServiceCollectionExtension
         services.AddSingleton<IEmailSender<VoterIdentity>, IdentityEmailSender>();
         services.AddScoped<IUserService, IdentityUserService>();
         services.AddScoped<IAccountManager, IdentityAccountManager>();
+        services.AddScoped<IVoterAccessor, IdentityVoterAccessor>();
         
         //Store key inside docker container.
         services.AddDataProtection()
