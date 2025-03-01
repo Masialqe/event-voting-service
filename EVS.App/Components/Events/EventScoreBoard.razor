@@ -1,4 +1,10 @@
-﻿@using EVS.App.Domain.Events
+﻿@using EVS.App.Application.UseCases.Events.GetEventScores
+@using EVS.App.Domain.Events
+@using EVS.App.Domain.VoterEvents
+
+@inject GetEventScoresHandler GetEventScoresHandler
+
+
 <h3>EventScoreBoard</h3>
 
 <div class="d-flex flex-column align-items-center">
@@ -13,8 +19,8 @@
         @foreach (var visitor in _votersScores)
         {
             <tr>
-                <td>@visitor.Key</td>
-                <td>@visitor.Value</td>
+                <td>@visitor.VoterName</td>
+                <td>@visitor.Score</td>
             </tr>
         }
         </tbody>
@@ -24,13 +30,16 @@
 @code {
     [Parameter] public Event? Event { get; set; }
 
-    private Dictionary<string, int> _votersScores = [];
+    private VoterScoreDto[] _votersScores = [];
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        if (Event != null)
+        if (Event is not null)
         {
-            _votersScores = Event.GetVotersScores();
+            var scoresResult = await GetEventScoresHandler.Handle(
+                new GetEventScoresRequest(Event.Id));
+
+            if (scoresResult.IsSuccess) _votersScores = scoresResult.Value;
         }
     }
 }

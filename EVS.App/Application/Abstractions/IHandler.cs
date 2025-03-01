@@ -12,6 +12,6 @@ public interface IHandler<TResponse, in TRequest>
     where TRequest : class
 {
     Task<TResponse> Handle(
-        TRequest request,
+        TRequest request = default!,
         CancellationToken cancellationToken = default);
 }

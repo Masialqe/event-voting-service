@@ -1,6 +1,6 @@
-﻿using EVS.App.Domain.Abstractions;
-using EVS.App.Domain.Abstractions.Entities;
+﻿using EVS.App.Domain.Abstractions.Entities;
 using EVS.App.Domain.Events;
+using EVS.App.Domain.Exceptions;
 using EVS.App.Domain.Voters;
 
 namespace EVS.App.Domain.VoterEvents;
@@ -34,10 +34,16 @@ public sealed class VoterEvent : IEntity
     public byte[] RowVersion { get; private set; } = default!;
 
     public string? VoterName => Voter?.Username;
-    
+    public Guid? RelatedVoterId => Voter?.Id;
     public int GetScore() => Score;
-    public void SetHasVoted() => HasVoted = true;
-    public void SetScore(int score)
+
+    public void SetHasVoted()
+    {
+        if(HasVoted)
+            throw new VoterAlreadyVotedException("Voter has already voted");
+        HasVoted = true;
+    }
+    public void AddScore(int score)
     {
         if(score < 0)
             throw new ArgumentException("Score cannot be negative");
@@ -50,3 +56,10 @@ public sealed class VoterEvent : IEntity
         HasVoted = false;
     }
 }
+
+public record SaveVoterScoreRequest(Guid VoterId, int Score)
+{
+    public static SaveVoterScoreRequest Create(Guid voterId, int score)
+        => new SaveVoterScoreRequest(voterId, score);
+};
+public record VoterScoreDto(string? VoterName, int Score);

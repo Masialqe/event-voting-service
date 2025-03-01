@@ -9,7 +9,7 @@ public sealed class GetLoggedVoterHandler(
     IVoterAccessor voterAccessor,
     ILogger<GetLoggedVoterHandler> logger) : IHandler<Result<Voter>, GetloggedVoterRequest>
 {
-    public async Task<Result<Voter>> Handle(GetloggedVoterRequest request, 
+    public async Task<Result<Voter>> Handle(GetloggedVoterRequest? request = default, 
         CancellationToken cancellationToken = default)
     {
         try

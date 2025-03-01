@@ -15,8 +15,8 @@ public class SignalRNotifier(
     public async Task BroadcastEventEnded(string groupName) 
         => await hubContext.Clients.Groups(groupName).EventEnded();
 
-    public async Task BroadcastEventsVisitorAdded(string groupName, VoterEvent voterEvent) 
-        => await hubContext.Clients.Groups(groupName).VoterAdded(voterEvent);
+    public async Task BroadcastEventsVisitorAdded(string groupName, Guid voterEventId) 
+        => await hubContext.Clients.Groups(groupName).VoterAdded(voterEventId);
 
     public async Task ReturnErrorReponseToClient(string connectionId, Error error) 
         => await hubContext.Clients.Client(connectionId).ErrorOccured(error);

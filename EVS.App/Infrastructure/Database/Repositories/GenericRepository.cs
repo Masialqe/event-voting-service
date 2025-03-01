@@ -13,6 +13,8 @@ public class GenericRepository<T>(
     public virtual async Task CreateAsync(T entity, 
         CancellationToken cancellationToken = default)
             => await SaveAsync(async context => await context.Set<T>().AddAsync(entity, cancellationToken), cancellationToken);
+    public virtual async Task<bool> IsAnyExists(Guid id, CancellationToken cancellationToken = default)
+        => await ExecuteAsync(async context => await context.Set<T>().AnyAsync(x => x.Id == id, cancellationToken), cancellationToken);
     
     public virtual async Task<T?> GetByIdAsync(Guid id, 
         CancellationToken cancellationToken = default)
@@ -60,5 +62,23 @@ public class GenericRepository<T>(
         await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
         await action(context);
         await context.SaveChangesAsync(cancellationToken);
+    }
+    
+    protected async Task SaveTransactionAsync(Func<ApplicationDbContext, Task> action,
+        CancellationToken cancellationToken = default)
+    {
+        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
+        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            await action(context);
+            await context.SaveChangesAsync(cancellationToken);
+            await transaction.CommitAsync(cancellationToken);
+        }
+        catch (Exception)
+        {
+            await transaction.RollbackAsync(cancellationToken);
+            throw;
+        }
     }
 }

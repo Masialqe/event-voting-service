@@ -61,7 +61,7 @@ public sealed class EventService(
         return Result.Success();
     }
 
-    public async Task<Result<VoterEvent>> AddVoterToEventAsync(Guid eventId, Guid voterId,
+    public async Task<Result<Guid>> AddVoterToEventAsync(Guid eventId, Guid voterId,
         CancellationToken cancellationToken = default)
     {
         if(eventId == Guid.Empty || voterId == Guid.Empty) return EventErrors.InvalidEventDataError;
@@ -86,9 +86,9 @@ public sealed class EventService(
             return errorResult;
         }
 
-        return voterEventState;
+        return voterEventState.Id;
     }
-
+    
     //todo: create repository method to just check if event exists
     private async Task<bool> IsEventNameAlreadyTaken(string eventName,
         CancellationToken cancellationToken = default)

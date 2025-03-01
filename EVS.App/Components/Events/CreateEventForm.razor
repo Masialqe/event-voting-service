@@ -33,17 +33,23 @@
         />
         <ValidationMessage For="@(() => Input.PlayerLimit)" />
     </div>
-    
+
     <div class="mb-3 d-flex flex-row">
         <div class="mb-3 p-1">
-            <InputCheckbox id="scaleVoteBox" @bind-Value="@_isSingleVoteType" @onclick="SetSingleVoteEventType" class="form-check-input" /> 
-            <label for="scaleVoteBox" class="form-check-label">
-                Single vote </label>
+            <InputCheckbox id="singleVoteBox"
+                           @bind-Value="_isSingleVoteType"
+                           @onclick="() => HandleVoteSelection(EventTypes.SingleVote, 
+                           ref _isSingleVoteType, ref _isScaleVoteType)"
+                           class="form-check-input" />
+            <label for="singleVoteBox" class="form-check-label">Single vote</label>
         </div>
         <div class="mb-3 p-1">
-            <InputCheckbox id="singleVoteBox" @bind-Value="@_isScaleVoteType" @onclick="SetScaleVoteEventType" class="form-check-input"/>
-            <label for="singleVoteBox" class="form-check-label">
-                Scale vote </label>
+            <InputCheckbox id="scaleVoteBox"
+                           @bind-Value="_isScaleVoteType"
+                           @onclick="() => HandleVoteSelection(EventTypes.ScaleVote, 
+                           ref _isScaleVoteType, ref _isSingleVoteType)"
+                           class="form-check-input" />
+            <label for="scaleVoteBox" class="form-check-label">Scale vote</label>
         </div>
         <ValidationMessage For="@(() => Input.Types)" />
     </div>
@@ -71,21 +77,21 @@
         if (result.IsSuccess)
             ResetFormFields();
     }
-
-    private void SetSingleVoteEventType()
+    
+    private void HandleVoteSelection(EventTypes selectedType, 
+        ref bool currentSelection, ref bool otherSelection)
     {
-        _isScaleVoteType = false;
-        SetEventType();
+        if (currentSelection) 
+        {
+            currentSelection = false;
+        }
+        else
+        {
+            currentSelection = true;
+            otherSelection = false; 
+            Input.Types = selectedType;
+        }
     }
-
-    private void SetScaleVoteEventType()
-    {
-        _isSingleVoteType = false;
-        SetEventType();
-    }
-
-    private void SetEventType()
-     => Input.Types = _isScaleVoteType ? EventTypes.ScaleVote : EventTypes.SingleVote;
 
     private void ResetFormFields()
     {

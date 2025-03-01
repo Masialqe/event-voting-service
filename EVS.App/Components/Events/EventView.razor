@@ -1,11 +1,14 @@
 ﻿@page "/event/{id}"
 @using EVS.App.Application.UseCases.Events.GetEventById
+@using EVS.App.Application.UseCases.Voters.GetVoterEvent
 @using EVS.App.Domain.Events
+@using EVS.App.Domain.VoterEvents
 @using EVS.App.Shared.Hub
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.SignalR.Client
 
 @inject GetEventByIdHandler GetEventByIdHandler
+@inject GetVoterEventByIdHandler GetVoterEventByIdHandler
 @inject SignalRService SignalRService
 
 @attribute [Authorize]
@@ -18,23 +21,25 @@
                 <div class="flex-grow-0 d-flex flex-column align-items-center w-100">
                     <h1>"@_eventData.Name"</h1>
                     <p> <i>@_eventData.Description</i></p>
-                    <p> Instance: @SignalRService.InstanceId </p>
                     
                 </div>
                 
                 @if (_eventData.EventState == EventState.Created)
                 {
-                    <EventVoterList Voters="@_eventData.VoterEvents" />
+                    <EventVoterList 
+                        Voters="_eventData.VoterEvents" />
                 }
 
                 @if (_eventData.EventState == EventState.Started)
                 {
-                    <EventVoteBoard Event="@_eventData"/>
+                    <EventVoteBoard 
+                        Event="_eventData"/>
                 }
 
                 @if (_eventData.EventState == EventState.Ended)
                 {
-                    <EventScoreBoard/>
+                    <EventScoreBoard 
+                        Event="_eventData"/>
                 }
             </div>
         }
@@ -78,6 +83,8 @@
     private void ListenToSignalREvents()
     {
         SignalRService.HubConnection.On("EventStarted", StartEventAsync);
+        SignalRService.HubConnection.On("EventEnded", EndEventAsync);
+        SignalRService.HubConnection.On<Guid>("VoterAdded", AddVoterToEvent);
     }
 
     private async Task HandleEventStarted() 
@@ -90,5 +97,28 @@
     {
         _eventData?.Start();
         await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task EndEventAsync()
+    {
+        _eventData?.End();
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task AddVoterToEvent(Guid voterEventId)
+    {
+        var voterEvent = await GetVoterEvent(voterEventId);
+        _eventData?.AddVoterEvent(voterEvent);
+        await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task<VoterEvent> GetVoterEvent(Guid voterEventId)
+    {
+        var request = GetVoterEventByIdRequest.Create(voterEventId);
+        var result = await GetVoterEventByIdHandler.Handle(request);
+        
+        //todo: failure check
+        
+        return result.Value;
     }
 }

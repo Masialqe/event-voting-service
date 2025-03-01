@@ -1,8 +1,7 @@
 ﻿using EVS.App.Application.Abstractions;
+using Microsoft.AspNetCore.SignalR;
 using EVS.App.Application.Errors;
 using EVS.App.Domain.Events;
-using EVS.App.Domain.Voters;
-using Microsoft.AspNetCore.SignalR;
 
 namespace EVS.App.Application.UseCases.Events.EventHubs;
 

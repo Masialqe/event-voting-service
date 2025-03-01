@@ -7,6 +7,9 @@ public interface IGenericRepository<T> where T : class, IEntity
     Task CreateAsync(T entity,
         CancellationToken cancellationToken = default);
 
+    Task<bool> IsAnyExists(Guid id, CancellationToken
+        cancellationToken = default);
+
     Task<T?> GetByIdAsync(Guid id,
         CancellationToken cancellationToken = default);
 

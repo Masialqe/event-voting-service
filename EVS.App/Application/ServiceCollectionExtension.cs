@@ -1,15 +1,18 @@
 ﻿using EVS.App.Application.UseCases.Events.CreateEvent;
 using EVS.App.Application.UseCases.Events.EventHubs;
 using EVS.App.Application.UseCases.Events.GetEventById;
+using EVS.App.Application.UseCases.Events.GetEventScores;
 using EVS.App.Application.UseCases.Events.JoinEvent;
 using EVS.App.Application.UseCases.Events.ListEvents;
 using EVS.App.Application.UseCases.Voters.ConfirmVoterEmail;
 using EVS.App.Application.UseCases.Voters.CreateVoter;
 using EVS.App.Application.UseCases.Voters.GetVoter;
+using EVS.App.Application.UseCases.Voters.GetVoterEvent;
 using EVS.App.Application.UseCases.Voters.LoginVoter;
+using EVS.App.Application.UseCases.Voters.SetVoterScore;
 using EVS.App.Domain.Events;
+using EVS.App.Domain.VoterEvents;
 using EVS.App.Domain.Voters;
-using EVS.App.Infrastructure.Database.Configurations;
 using EVS.App.Infrastructure.Notifiers;
 
 namespace EVS.App.Application;
@@ -24,13 +27,18 @@ public static class ServiceCollectionExtension
         services.AddScoped<LoginVoterHandler>();
         services.AddScoped<GetLoggedVoterHandler>();
         services.AddScoped<GetVoterByIdHandler>();
+        services.AddScoped<SetVotersScoresHandler>();
         
         //events
         services.AddScoped<CreateEventHandler>();
         services.AddScoped<LoadEventsHandler>();
         services.AddScoped<JoinEventHandler>();
         services.AddScoped<GetEventByIdHandler>();
+        services.AddScoped<GetEventScoresHandler>();
         services.UseSignalR();
+        
+        //voterEvents
+        services.AddScoped<GetVoterEventByIdHandler>();
         
         return services;
     }
@@ -39,6 +47,7 @@ public static class ServiceCollectionExtension
     {
         services.AddScoped<VoterService>();
         services.AddScoped<EventService>();
+        services.AddScoped<VoterEventService>();
         
         return services;
     }

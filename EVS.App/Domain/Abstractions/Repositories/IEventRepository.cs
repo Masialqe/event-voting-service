@@ -10,6 +10,8 @@ public interface IEventRepository : IGenericRepository<Event>
     Task<Event?> GetByNameAsync(string eventName,
         CancellationToken cancellationToken = default);
     
-    Task<IEnumerable<Event>> GetManyAsPageAsync(int offset = 0, int take = 10,
+    Task<IEnumerable<Event>> GetManyAsPageAsync(int offset = 0, int take = 50,
         CancellationToken cancellationToken = default);
+
+    Task DeleteEndedOlderThanDay(CancellationToken cancellationToken = default);
 }

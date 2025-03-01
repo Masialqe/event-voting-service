@@ -5,11 +5,15 @@
     <div>
         @if (Event.EventType == EventTypes.ScaleVote)
         {
-            <EventScaleVoteComponent/>
+            <EventScaleVoteComponent
+                EventId="Event.Id"
+                Voters="Event.VoterEvents"/>
         }
         else
         {
-            <EventSingleVoteComponent/>
+            <EventSingleVoteComponent
+                EventId="Event.Id"
+                Voters="Event.VoterEvents"/>
         }
     </div>
 }

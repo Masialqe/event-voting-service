@@ -11,6 +11,7 @@ public sealed class EventRepository(
 {
     private readonly IDbContextFactory<ApplicationDbContext> _contextFactory = contextFactory;
 
+    //todo: consider if not add start, end separate tasks
     public async Task<Event?> GetIncludingDependencies(Guid eventId, 
         CancellationToken cancellationToken = default)
     {
@@ -33,7 +34,7 @@ public sealed class EventRepository(
             cancellationToken);
     }
     
-    public async Task<IEnumerable<Event>> GetManyAsPageAsync(int offset = 0, int take = 10, 
+    public async Task<IEnumerable<Event>> GetManyAsPageAsync(int offset = 0, int take = 50, 
         CancellationToken cancellationToken = default)
     { 
         await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
@@ -46,8 +47,27 @@ public sealed class EventRepository(
             .ToListAsync(cancellationToken);
     
         return result;
+        //todo: change it to this
+        // return await ExecuteAsync(
+        //     context => await context.Set<Event>()
+        //         .AsNoTracking()
+        //         .IncludeVoterEvents()
+        //         .Skip(offset)
+        //         .Take(take)
+        //         .ToListAsync(cancellationToken),
+        //     cancellationToken);
+    }
+    public async Task DeleteEndedOlderThanDay(CancellationToken cancellationToken = default)
+    {
+        const int MAX_HOURS_TO_DELETE = -12;
+        await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
+
+        await context.Set<Event>()
+            .Where(x => x.EndedAt < DateTime.UtcNow.AddHours(MAX_HOURS_TO_DELETE))
+                .ExecuteDeleteAsync(cancellationToken);
     }
 }
+
 
 public static class EventRepositoryExtensions
 {

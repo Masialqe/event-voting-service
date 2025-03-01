@@ -1,6 +1,7 @@
 using System.Text.Json;
 using EVS.App.Application;
 using EVS.App.Components;
+using EVS.App.Infrastructure.Cleaning;
 using EVS.App.Infrastructure.Database;
 using EVS.App.Infrastructure.Database.Context;
 using EVS.App.Infrastructure.Database.Extensions;
@@ -25,6 +26,7 @@ builder.Services
     .AddIdentityServices(builder.Configuration)
     .AddMessagingServices(builder.Configuration)
     .AddDatabaseServices(builder.Configuration)
+    .AddCleaningServices()
     .AddNotifiers();
 
 //Application

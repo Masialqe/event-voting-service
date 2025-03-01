@@ -12,6 +12,9 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
 
         builder.Property(x => x.Id)
             .HasColumnName("Event_Id");
+        
+        builder.HasIndex(x => x.Id)
+            .IsUnique();
 
         builder.Property(x => x.Name)
             .HasColumnType("varchar(100)")
@@ -35,8 +38,20 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
             .HasColumnType("INTEGER")
             .HasColumnName("Event_VoterLimit");
         
+        builder.Property(x => x.VotesCount)
+            .HasColumnType("INTEGER")
+            .HasColumnName("Event_VotesCount");
+        
+        builder.Property(x => x.AvailableVotingPoints)
+            .HasColumnType("INTEGER")
+            .HasColumnName("Event_AvailableVotingPoints");
+        
         builder.Property(x => x.CreatedAt)
             .HasColumnName("Event_CreatedAt");
+        
+        builder.Property(x => x.EndedAt)
+            .HasColumnName("Event_EndedAt")
+            .IsRequired(false);
         
         builder.HasOne(x => x.Voter)
             .WithMany(x => x.CreatedEvents)

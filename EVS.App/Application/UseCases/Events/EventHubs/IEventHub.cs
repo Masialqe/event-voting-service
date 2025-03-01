@@ -9,7 +9,7 @@ public interface IEventHub
     Task EventEnded();
     Task EventRestarted();
     Task ErrorOccured(Error error);
-    Task VoterAdded(VoterEvent voterEvent);
+    Task VoterAdded(Guid voterEventId);
     
     //notification responses
     Task VoterAddedSuccessfully(string eventId);
