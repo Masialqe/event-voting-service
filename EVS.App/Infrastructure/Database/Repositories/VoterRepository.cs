@@ -13,7 +13,7 @@ public class VoterRepository(
         CancellationToken cancellationToken = default)
     {
         return await ExecuteAsync(
-            context => context.Voters.FirstOrDefaultAsync(x => x.Username == name, cancellationToken), 
+            context => context.Voters.AsNoTracking().FirstOrDefaultAsync(x => x.Username == name, cancellationToken), 
             cancellationToken
         );
     }
@@ -22,7 +22,7 @@ public class VoterRepository(
         CancellationToken cancellationToken = default)
     {
         return await ExecuteAsync(
-            context => context.Voters.FirstOrDefaultAsync(x => x.Email == email, cancellationToken), 
+            context => context.Voters.AsNoTracking().FirstOrDefaultAsync(x => x.Email == email, cancellationToken), 
             cancellationToken
         );
     }
@@ -31,7 +31,7 @@ public class VoterRepository(
         CancellationToken cancellationToken = default)
     {
         return await ExecuteAsync(
-            context => context.Voters.FirstOrDefaultAsync(x => x.UserId == userId, cancellationToken), 
+            context => context.Voters.AsNoTracking().FirstOrDefaultAsync(x => x.UserId == userId, cancellationToken), 
             cancellationToken
         );
     }
@@ -41,6 +41,7 @@ public class VoterRepository(
     {
         return await ExecuteAsync(
             context => context.Voters
+                .AsNoTracking()
                 .Include(x => x.VoterEvents)
                 .FirstOrDefaultAsync(x => x.Id == voterId, cancellationToken), 
             cancellationToken

@@ -10,7 +10,9 @@ public static class VoterEventErrors
     public static Error VoterAlreadyVotedError
         => new Error(nameof(VoterAlreadyVotedError), "The voter has been already voted.");
     
-    
     public static Error VoterEventStateCannotBeProcessedError
-        => new Error(nameof(VoterAlreadyVotedError), "Voting state cannot be process.");
+        => new Error(nameof(VoterEventStateCannotBeProcessedError), "Voting state cannot be process.");
+    
+    public static Error CannotVoteForSelfError
+        => new Error(nameof(CannotVoteForSelfError), "Cannot vote for self.");
 }

@@ -12,7 +12,11 @@ public partial class CreateEventForm
 
         [Required]
         [Range(1, 100, ErrorMessage = "Player limit must fit between 1-100.")]
-        public int PlayerLimit { get; set; } = 0;
-        [Required] public EventTypes Types { get; set; } = default;
+        public int PlayerLimit { get; set; } = 1;
+        
+        [Range(1, 100, ErrorMessage = "Player limit must fit between 1-100.")]
+        public int PointsLimit {get; set; } = 1;
+
+        [Required] public EventTypes Type { get; set; } = EventTypes.SingleVote;
     }
 }

@@ -42,7 +42,11 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
             .HasColumnType("INTEGER")
             .HasColumnName("Event_VotesCount");
         
-        builder.Property(x => x.AvailableVotingPoints)
+        builder.Property(x => x.VotersCount)
+            .HasColumnType("INTEGER")
+            .HasColumnName("Event_VotersCount");
+        
+        builder.Property(x => x.PointsLimit)
             .HasColumnType("INTEGER")
             .HasColumnName("Event_AvailableVotingPoints");
         

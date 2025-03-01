@@ -17,7 +17,7 @@ public sealed class SetVotersScoresHandler(
     {
         try
         {
-            var result  = await voterEventService.SaveScoreForManyVotersAsync(request.VotersScores, 
+            var result  = await voterEventService.RegisterVoteAsync(request.VotersScores, 
                     request.EventId, request.VoteMadeById, cancellationToken);
 
             if (result.IsFailure) return result.Error;

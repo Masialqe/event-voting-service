@@ -18,7 +18,7 @@ public class Voter : IVoterEventEntity
     public ICollection<Event> CreatedEvents { get; set; } = [];
 
     public static Voter Create(string nickname, string userId, string email)
-        => new Voter(nickname, userId, email);
+        => new (nickname, userId, email);
 
     private Voter(string nickname, string userId, string email)
     {

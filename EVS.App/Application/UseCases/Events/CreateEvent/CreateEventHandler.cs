@@ -19,7 +19,7 @@ public sealed class CreateEventHandler(
             var voterId = currentLoggedVoter.Value.Id;
             
             var createEventDto = CreateEventDto.Create(request.EventName, request.EventDescription, 
-                voterId, request.EventTypes, request.PlayerLimit);
+                voterId, request.EventTypes, request.PlayerLimit, request.PointsLimit);
             
             var result = await eventService.CreateEventAsync(createEventDto, cancellationToken);
             

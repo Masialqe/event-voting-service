@@ -1,5 +1,4 @@
-﻿using EVS.App.Domain.Abstractions;
-using EVS.App.Domain.Abstractions.Entities;
+﻿using EVS.App.Domain.Abstractions.Entities;
 using EVS.App.Domain.Abstractions.Repositories;
 using EVS.App.Infrastructure.Database.Context;
 using Microsoft.EntityFrameworkCore;
@@ -63,22 +62,4 @@ public class GenericRepository<T>(
         await action(context);
         await context.SaveChangesAsync(cancellationToken);
     }
-    
-    protected async Task SaveTransactionAsync(Func<ApplicationDbContext, Task> action,
-        CancellationToken cancellationToken = default)
-    {
-        await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
-        await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
-        try
-        {
-            await action(context);
-            await context.SaveChangesAsync(cancellationToken);
-            await transaction.CommitAsync(cancellationToken);
-        }
-        catch (Exception)
-        {
-            await transaction.RollbackAsync(cancellationToken);
-            throw;
-        }
-    }
-}
+} 

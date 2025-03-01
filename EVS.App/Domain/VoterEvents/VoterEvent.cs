@@ -18,7 +18,7 @@ public sealed class VoterEvent : IEntity
     }
     
     public static VoterEvent Create(Guid eventId, Guid voterId)
-        => new VoterEvent(eventId, voterId); 
+        => new (eventId, voterId); 
     
     public Guid Id { get; private set; } = Guid.NewGuid();
     

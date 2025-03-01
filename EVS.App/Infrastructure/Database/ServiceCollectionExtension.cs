@@ -2,6 +2,7 @@
 using EVS.App.Domain.Abstractions.Repositories;
 using EVS.App.Infrastructure.Database.Context;
 using EVS.App.Infrastructure.Database.Repositories;
+using EVS.App.Infrastructure.Database.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace EVS.App.Infrastructure.Database;
@@ -19,6 +20,8 @@ public static class ServiceCollectionExtension
         services.AddScoped<IVoterRepository, VoterRepository>();
         services.AddScoped<IEventRepository, EventRepository>();
         services.AddScoped<IVoterEventRepository, VoterEventRepository>();
+
+        services.AddScoped<ITransactionService, TransactionService>();
         
         return services;
     }

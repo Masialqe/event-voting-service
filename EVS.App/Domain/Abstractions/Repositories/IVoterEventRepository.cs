@@ -6,8 +6,6 @@ public interface IVoterEventRepository : IGenericRepository<VoterEvent>
 {
     Task LinkEventAndVoterAsync(VoterEvent voterEvent, 
         CancellationToken cancellationToken = default);
-    Task UpdateVoterEventScoresAsync(SaveVoterScoreRequest[] saveVoterScoreRequests,
-        CancellationToken cancellationToken = default);
     Task<int> GetVoterScoreAsync(Guid voterEventId,
         CancellationToken cancellationToken = default);
     Task<VoterEvent?> GetIncludingEvent(Guid voterEventId,

@@ -65,34 +65,13 @@ public sealed class VoterEventRepository(
                 .FirstOrDefaultAsync(cancellationToken),
             cancellationToken);
     }
-
-    public async Task UpdateVoterEventScoresAsync(SaveVoterScoreRequest[] saveVoterScoreRequests,
-        CancellationToken cancellationToken = default)
-    {
-        await SaveTransactionAsync(async context =>
-        {
-            var voterEventsId = saveVoterScoreRequests.Select(x => x.VoterId).ToArray();
-            var voterEventStates = await context.Set<VoterEvent>()
-                .Where(x => voterEventsId.Contains(x.Id))
-                .ToDictionaryAsync(x => x.Id, cancellationToken);
-        
-            foreach (var saveVoterScoreRequest in saveVoterScoreRequests)
-            {
-                if (!voterEventStates.TryGetValue(saveVoterScoreRequest.VoterId, out var currentState))
-                {
-                    throw new ArgumentException($"Voter event not found {saveVoterScoreRequest.VoterId}");
-                }
-
-                currentState.AddScore(saveVoterScoreRequest.Score);
-            }
-        }, cancellationToken);
-    }
-
+    
     public async Task<VoterEvent?> GetIncludingEvent(Guid voterEventId, 
         CancellationToken cancellationToken = default)
     {
         return await ExecuteAsync(
             context => context.Set<VoterEvent>()
+                .AsNoTracking()
                 .Include(e => e.Event)
                 .FirstOrDefaultAsync(x => x.Id == voterEventId, cancellationToken),
             cancellationToken);
@@ -103,6 +82,7 @@ public sealed class VoterEventRepository(
     {
         return await ExecuteAsync(
             context => context.Set<VoterEvent>()
+                .AsNoTracking()
                 .Where(x => x.VoterId == relatedVoterId && x.EventId == relatedEventId)
                 .FirstOrDefaultAsync(cancellationToken),
             cancellationToken);

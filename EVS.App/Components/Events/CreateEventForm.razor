@@ -25,13 +25,15 @@
     </div>
     
     <div class="mb-3">
+        <label for="player-limit">Max players count </label>
         <InputNumber
             class="form-control"
+            id="player-limit"
             @bind-Value="Input.PlayerLimit"
             TValue="int"
-            placeholder="Enter player limit..."
-        />
-        <ValidationMessage For="@(() => Input.PlayerLimit)" />
+            min="1"
+            placeholder="Enter player limit..."/>
+        <ValidationMessage For="@(() => Input.PlayerLimit)"/>
     </div>
 
     <div class="mb-3 d-flex flex-row">
@@ -39,7 +41,7 @@
             <InputCheckbox id="singleVoteBox"
                            @bind-Value="_isSingleVoteType"
                            @onclick="() => HandleVoteSelection(EventTypes.SingleVote, 
-                           ref _isSingleVoteType, ref _isScaleVoteType)"
+                               ref _isSingleVoteType, ref _isScaleVoteType)"
                            class="form-check-input" />
             <label for="singleVoteBox" class="form-check-label">Single vote</label>
         </div>
@@ -47,12 +49,27 @@
             <InputCheckbox id="scaleVoteBox"
                            @bind-Value="_isScaleVoteType"
                            @onclick="() => HandleVoteSelection(EventTypes.ScaleVote, 
-                           ref _isScaleVoteType, ref _isSingleVoteType)"
+                               ref _isScaleVoteType, ref _isSingleVoteType)"
                            class="form-check-input" />
             <label for="scaleVoteBox" class="form-check-label">Scale vote</label>
         </div>
-        <ValidationMessage For="@(() => Input.Types)" />
+        <ValidationMessage For="@(() => Input.Type)" />
     </div>
+    @if (Input.Type == EventTypes.ScaleVote)
+    {
+        <div class="mb-3">
+            <label for="points-limit">Max points to earn </label>
+            <InputNumber
+                class="form-control"
+                id="points-limit"
+                @bind-Value="Input.PointsLimit"
+                TValue="int"
+                min="1"
+                placeholder="Enter player limit..."/>
+            <ValidationMessage For="@(() => Input.PointsLimit)"/>
+        </div>
+    }
+    
     <div class="mb-3 d-flex justify-content-center">
         <button type="submit"
                 class="btn btn-primary">
@@ -70,7 +87,7 @@
     
     private async Task HandleFormSubmit()
     {
-        var request = CreateEventRequest.Create(Input.Name, Input.Description, Input.Types, Input.PlayerLimit);
+        var request = CreateEventRequest.Create(Input.Name, Input.Description, Input.Type, Input.PlayerLimit, Input.PointsLimit);
         var result = await CreateEventHandler.Handle(request);
 
         //todo: failure
@@ -89,7 +106,7 @@
         {
             currentSelection = true;
             otherSelection = false; 
-            Input.Types = selectedType;
+            Input.Type = selectedType;
         }
     }
 

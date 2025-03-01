@@ -17,6 +17,7 @@ public sealed class EventRepository(
     {
         return await ExecuteAsync(
             context => context.Set<Event>()
+                .AsNoTracking()
                 .Where(e => e.Id == eventId)
                 .IncludeVoter()
                 .IncludeVoterEvents()
@@ -47,15 +48,6 @@ public sealed class EventRepository(
             .ToListAsync(cancellationToken);
     
         return result;
-        //todo: change it to this
-        // return await ExecuteAsync(
-        //     context => await context.Set<Event>()
-        //         .AsNoTracking()
-        //         .IncludeVoterEvents()
-        //         .Skip(offset)
-        //         .Take(take)
-        //         .ToListAsync(cancellationToken),
-        //     cancellationToken);
     }
     public async Task DeleteEndedOlderThanDay(CancellationToken cancellationToken = default)
     {

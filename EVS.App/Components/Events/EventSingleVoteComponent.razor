@@ -9,9 +9,9 @@
 <div>
     @if (Voters is { Count: > 0 } 
          && _currentLoggedVoter is not null
-         && _currentLoggedVoterState is not null)
+         && _currentLoggedVoterState is not null
+         && _votesAsDict is {Count: > 0})
     {
-        
         @if (!_currentLoggedVoterState.HasVoted)
         {
             <table class="table">
@@ -26,7 +26,7 @@
                 {
                     if (voter.RelatedVoterId == _currentLoggedVoter.Id)
                         continue;
-                    
+
                     <tr @key="voter.Id">
                         <td>@voter.VoterName</td>
                         <td>
@@ -68,18 +68,20 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (Voters is { Count: > 0 })
-        {
-            _votesAsDict = Voters.ToDictionary(voter => voter.Id, voter => false);
-            _isSubmitAvailable = (Voters.Count - 1) > 0;
-        }
-
         var currentLoggedUserResult = await GetLoggedVoterHandler.Handle();
 
         if (currentLoggedUserResult.IsSuccess)
         {
             _currentLoggedVoter = currentLoggedUserResult.Value;
             _currentLoggedVoterState = Voters?.FirstOrDefault(x => x.VoterId == _currentLoggedVoter.Id);
+        }
+        
+        if (Voters is { Count: > 0 })
+        {
+            _votesAsDict = Voters
+                .Where(x => x.VoterId != _currentLoggedVoter?.Id)
+                .ToDictionary(voter => voter.Id, voter => false);
+            _isSubmitAvailable = (Voters.Count - 1) > 0;
         }
     }
 
