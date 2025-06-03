@@ -1,8 +1,5 @@
 ﻿@page "/Account/LoginWith2fa"
-
-@using System.ComponentModel.DataAnnotations
-@using Microsoft.AspNetCore.Identity
-@using EVS.App.Infrastructure.Identity.Users
+@layout EventLayout
 
 @inject SignInManager<VoterIdentity> SignInManager
 @inject UserManager<VoterIdentity> UserManager

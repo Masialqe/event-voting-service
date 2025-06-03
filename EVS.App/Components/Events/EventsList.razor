@@ -1,67 +1,137 @@
-﻿@using EVS.App.Application.UseCases.Events.ListEvents
-@using EVS.App.Domain.Abstractions
-@using EVS.App.Domain.Events
-@using EVS.App.Shared.Hub
-@using Microsoft.AspNetCore.SignalR.Client
-
-@inject LoadEventsHandler LoadEventsHandler
+﻿@inject LoadEventPageByNameHandler LoadEventPageByNameHandler
 @inject NavigationManager NavigationManager
 @inject SignalRService SignalRService
 @inject IHttpContextAccessor HttpContextAccessor
 
-@inject ILogger<EventsList> Logger
-
-@* @implements IAsyncDisposable *@
-
-<div class="d-flex justify-content-center align-content-center flex-wrap">
-    @if(_events is { Length: > 0})
-    {
-        @foreach(var ev in _events)
-        {
-            <div class="p-2">
-                <EventCard 
-                    @key="ev.Id" 
-                    Event="@ev"
-                    OnVoterJoinedEvent="HandleVoterAddedToEvent"/>
+<div class="container-fluid shadow border-2 w-75 h-100 p-4" style="min-width: 350px">
+    <div class="event-list-container">
+        <div class="d-flex p-3 justify-content-start gap-2 flex-wrap">
+            <div>
+                <EventListSearchBar
+                    OnSearch="LoadEventsPageAsync"
+                    OnParametersLoaded="LoadEventsPageAsync"/>
             </div>
-        }
-        <p> -- @_events.Length -- </p>
-        <p> Instance: @SignalRService.InstanceId </p>
-    }
-    else
-    {
-        <div class="text-center">
-            <!--
-            <Spinner Type="SpinnerType.Border"/> -->
-            <p> No events available...</p>
+            <button
+                class="btn btn-secondary"
+                @onclick="HandleShowAddEventModal"><i class="bi bi-plus-circle-fill"></i> Add</button>
         </div>
-    }
+        <div class="event-list">
+            @if (_events is { Length: > 0 })
+            {
+                <div class="event-container">
+                    <div class="grid-container p-3">
+                        @foreach (var ev in _events)
+                        {
+                            <EventCard
+                                @key="ev.Id"
+                                Event="@ev"
+                                OnVoterJoinedEvent="HandleVoterAddedToEvent"/>
+                        }
+                    </div>
+                    <div class="pagination-container mt-1">
+                        <PaginationComponent
+                            TotalPages="@_pageCount"
+                            ActivePage="@_currentPage"
+                            OnPageChanged="HandlePageChanged"/>
+                    </div>
+                </div>
+            }
+            else
+            {
+                if (_isLoading)
+                {
+                    <div class="d-flex justify-content-center">
+                        <Spinner Type="SpinnerType.Border"/>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center w-100">
+                        <p>No events available...</p>
+                    </div>
+                }
+            }
+        </div>
+    </div>
 </div>
 
+<ToolTip @ref="_toolTip"/>
+<ModalWindow @ref="_modalWindow">
+    <CreateEventForm></CreateEventForm>
+</ModalWindow>
+
 @code {
-    private Event[] _events = default!;
+    private Event[]? _events = default!;
+    
+    private EventSearchBarModel _searchBarOptions = EventSearchBarModel.Empty;
     private string? _connectionId;
+    
+    private ToolTip? _toolTip;
+    private ModalWindow? _modalWindow;
+    
+    private bool _isLoading = false;
+    
+    private int _pageCount = 1;
+    private int _currentPage = 1;
+
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await LoadEventsHandler.Handle(new LoadEventsRequest());
-
-        if (result.IsSuccess)
-            _events = result.Value;
-
         await StartSignalRConnection();
         ListenToSignalREvents();
     }
 
+    private async Task LoadEventsPageAsync(EventSearchBarModel searchBarModel)
+    {
+        ChangeLoadingState();
+        if (await GetEventPageAsync(searchBarModel) is { } result)
+        {
+            var (events, eventsCount) = result;
+            _events = events;
+            _pageCount = CalculatePageCount(eventsCount, searchBarModel.PageSize);
+        }
+
+        _searchBarOptions = searchBarModel;
+        ChangeLoadingState();
+    }
+
+    private async Task<(Event[], int)?> GetEventPageAsync(EventSearchBarModel searchBarModel)
+    {
+        var result = await LoadEventPageByNameHandler.Handle(
+            LoadEventPageByNameRequest.Create(searchBarModel.EventName, searchBarModel.PageSize, _currentPage));
+        if (!result.IsSuccess) return null;
+        
+        return result.Value;
+    }
+    
+    private int CalculatePageCount(int totalEventsCount, int pageSize)
+        => (int)Math.Ceiling((double)totalEventsCount / pageSize);
+
+    private void ChangeLoadingState()
+    {
+        _isLoading = !_isLoading;
+        StateHasChanged();
+    }
+    
+    private async Task HandlePageChanged(int newPageNumber)
+    {
+        _currentPage = newPageNumber;
+        await LoadEventsPageAsync(_searchBarOptions);
+    }
+
+    private async Task HandleShowAddEventModal()
+    {
+        await _modalWindow.ShowModalAsync();
+    }
+    
+    
     private async Task HandleVoterAddedToEvent((string voterId, string eventId) input)
     {
         await SignalRService.HubConnection.InvokeAsync("AddVisitorToEventAsync", input.voterId, input.eventId);
     }
 
-    private void HandleVoterAddedToEventError(Error error)
-    {
-        //todo: error toast
-    }
+    private async Task HandleVoterAddedToEventError(Error error)
+        => await _toolTip.ShowMessageAsync(ToastType.Danger, error.errorDescription ?? error.errorName);
 
     private void HandleVoterAddedSuccesfoultToEvent(string eventId)
     {
@@ -80,9 +150,5 @@
         SignalRService.HubConnection.On<Error>("ErrorOccured", HandleVoterAddedToEventError);
         SignalRService.HubConnection.On<string>("VoterAddedSuccessfully", HandleVoterAddedSuccesfoultToEvent);
     }
-
-    // public async ValueTask DisposeAsync()
-    // {
-    //     await SignalRService.HubConnection.InvokeAsync("RemoveFromGroupAsync", _connectionId);
-    // }
+    
 }

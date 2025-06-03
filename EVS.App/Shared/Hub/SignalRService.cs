@@ -1,5 +1,4 @@
-﻿using EVS.App.Application.UseCases.Events.EventHubs;
-using EVS.App.Infrastructure.Notifiers;
+﻿using EVS.App.Infrastructure.Notifiers;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.SignalR.Client;
 

@@ -1,29 +1,29 @@
 ﻿services:
   
-  evs-app:
-    image: evs.app
-    container_name: evs-app
-    build:
-      context: .
-      dockerfile: EVS.App/Dockerfile
-    environment:
-      - RabbitMQ__Host=amqp://evs-rabbitMq:5672
-      - RabbitMQ__Username=${RabbitMQ_USERNAME}
-      - RabbitMQ__Password=${RabbitMQ_PASSWORD}
-      - SmtpOptions__Host=${SMTP_HOST}
-      - SmtpOptions__Port=${SMTP_PORT}
-      - SmtpOptions__UserName=${SMTP_USERNAME}
-      - SmtpOptions__Password=${SMTP_PASSWORD}
-      - SmtpOptions__Name=${SMTP_NAME}
-    ports:
-      - "8080:8080"
-    networks:
-      - evs-app-network
-    volumes:
-      - app-data:/app/appData
-    depends_on:
-      - evs-database
-      - evs-rabbitMq
+#  evs-app:
+#    image: evs.app
+#    container_name: evs-app
+#    build:
+#      context: .
+#      dockerfile: EVS.App/Dockerfile
+#    environment:
+#      - RabbitMQ__Host=amqp://evs-rabbitMq:5672
+#      - RabbitMQ__Username=${RabbitMQ_USERNAME}
+#      - RabbitMQ__Password=${RabbitMQ_PASSWORD}
+#      - SmtpOptions__Host=${SMTP_HOST}
+#      - SmtpOptions__Port=${SMTP_PORT}
+#      - SmtpOptions__UserName=${SMTP_USERNAME}
+#      - SmtpOptions__Password=${SMTP_PASSWORD}
+#      - SmtpOptions__Name=${SMTP_NAME}
+#    ports:
+#      - "8080:8080"
+#    networks:
+#      - evs-app-network
+#    volumes:
+#      - app-data:/app/appData
+#    depends_on:
+#      - evs-database
+#      - evs-rabbitMq
       
   evs-seq:
     image: datalust/seq:latest

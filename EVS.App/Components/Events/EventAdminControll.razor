@@ -1,28 +1,26 @@
-﻿@using EVS.App.Application.UseCases.Voters.GetVoter
-@using EVS.App.Domain.Events
-@using EVS.App.Domain.Voters
-
-@inject GetLoggedVoterHandler GetLoggedVoterHandler
+﻿@inject GetLoggedVoterHandler GetLoggedVoterHandler
 
 @inject ILogger<EventAdminControll> Logger
 
 @if (Event is not null && _isAdminPanelVisible)
 {
-    <div class="d-flex flex-column justify-content-center align-items-center m-2">
+    <div class="d-flex flex-column justify-content-center align-items-center m-2" style="min-width: 130px;">
+        <h4> Admin options </h4>
+        <hr class="w-75 border-2 border-secondary mb-3 mt-2" />
         <button class="btn custom-btn mb-2 w-50"
-                style="background-color: #DE871D;"
+                style="background-color: #1b6ec2;"
                 disabled="@_isStartDisabled"
                 @onclick="async () => await HandleStartEventClick()">
-             Start Event
+            Start Event
         </button>
         <button class="btn custom-btn mb-2 w-50"
-                style="background-color: #DE871D;"
+                style="background-color: #1b6ec2;"
                 disabled="@_isResetDisabled"
                 @onclick="async () => await HandleResetEventClick()">
             Reset Event
         </button>
         <button class="btn custom-btn mb-2 w-50"
-                style="background-color: #DE871D;"
+                style="background-color: #1b6ec2;"
                 disabled="@_isEndDisabled"
                 @onclick="async () => await HandleEndEventClick()">
             End Event

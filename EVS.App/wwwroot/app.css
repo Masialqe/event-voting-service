@@ -1,5 +1,14 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    text-decoration: none;
+}
+
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    min-width: 465px;
 }
 
 a, .btn-link {
@@ -49,3 +58,19 @@ h1:focus {
 .darker-border-checkbox.form-check-input {
     border-color: #929292;
 }
+
+
+/*Custom styles*/
+
+/*.event-card-wrapper{*/
+/*    width: calc(25% - 16px);*/
+/*    flex: 1 1 calc(25% - 16px);*/
+/*    min-width: 100px;*/
+/*}*/
+
+/*.grid-container{*/
+/*    display: grid;*/
+/*    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));*/
+/*    gap: 10px;*/
+/*    justify-content: center;*/
+/*}*/

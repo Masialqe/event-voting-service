@@ -1,0 +1,24 @@
+﻿<Pagination ActivePageNumber="@ActivePage"
+            TotalPages="@TotalPages"
+            DisplayPages="5"
+            FirstLinkIcon="IconName.ChevronDoubleLeft"
+            PreviousLinkIcon="IconName.ChevronLeft"
+            NextLinkIcon="IconName.ChevronRight"
+            LastLinkIcon="IconName.ChevronDoubleRight"
+            PageChanged="HandlePageChange"/>
+
+@code {
+    [Parameter] public int ActivePage { get; set; }
+    [Parameter] public int TotalPages { get; set; }
+    
+    [Parameter] public EventCallback<int> OnPageChanged { get; set; }
+
+    private int _currentPageNumber = 1;
+
+    private async Task HandlePageChange(int newPageNumber)
+    {
+        _currentPageNumber = newPageNumber;
+        await OnPageChanged.InvokeAsync(newPageNumber);
+    }
+
+}

@@ -29,10 +29,6 @@ namespace EVS.App.Migrations.ApplicationDb
                         .HasColumnType("uuid")
                         .HasColumnName("Event_Id");
 
-                    b.Property<int>("AvailableVotingPoints")
-                        .HasColumnType("INTEGER")
-                        .HasColumnName("Event_AvailableVotingPoints");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("Event_CreatedAt");
@@ -58,6 +54,10 @@ namespace EVS.App.Migrations.ApplicationDb
                         .HasColumnType("varchar(100)")
                         .HasColumnName("Event_Name");
 
+                    b.Property<int>("PointsLimit")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("Event_AvailableVotingPoints");
+
                     b.Property<Guid>("VoterId")
                         .HasColumnType("uuid");
 
@@ -76,6 +76,9 @@ namespace EVS.App.Migrations.ApplicationDb
                     b.HasKey("Id");
 
                     b.HasIndex("Id")
+                        .IsUnique();
+
+                    b.HasIndex("Name")
                         .IsUnique();
 
                     b.HasIndex("VoterId");

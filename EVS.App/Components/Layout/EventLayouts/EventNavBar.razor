@@ -1,0 +1,47 @@
+﻿@inject IJSRuntime JsRuntime
+
+@rendermode InteractiveServer
+
+<AuthorizeView>
+    <Authorized>
+        <div class="d-flex justify-content-end align-items-center p-3 gap-2">
+            <button
+                class="btn btn-light"
+                @onclick="HandleUserDetailsClick">
+                <i class="bi bi-person-circle"></i>
+            </button>
+            <button
+                class="btn btn-light"
+                @onclick="HandleLogoutClick">
+                <i class="bi bi-box-arrow-right"></i>
+            </button>
+        </div>
+        <ModalWindow
+            @ref="_userProfilModal"
+            ModalTitle="User profile">
+                <UserProfileComponent/>
+        </ModalWindow>
+
+        <ModalWindow
+            @ref="_logoutModal"
+            ModalTitle="Logout">
+            <LogoutComponent OnActionCanceled="() => _logoutModal.HideModalAsync()"/>
+        </ModalWindow>
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    private ModalWindow? _userProfilModal;
+    private ModalWindow? _logoutModal;
+    
+    private async Task HandleUserDetailsClick()
+    {
+        await _userProfilModal.ShowModalAsync();
+    }
+    
+    private async Task HandleLogoutClick()
+    {
+        await _logoutModal.ShowModalAsync();
+    }
+    
+}

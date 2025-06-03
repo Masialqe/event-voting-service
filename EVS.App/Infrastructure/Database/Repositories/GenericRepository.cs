@@ -22,6 +22,10 @@ public class GenericRepository<T>(
     public virtual async Task<T?> GetByIdNoTrackingAsync(Guid id, 
         CancellationToken cancellationToken = default)
         => await ExecuteAsync(async context => await context.Set<T>().AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, cancellationToken), cancellationToken);
+
+    public virtual async Task<IEnumerable<T>> GetManyAsync(
+        CancellationToken cancellationToken = default)
+            => await ExecuteAsync(async context => await context.Set<T>().AsNoTracking().ToListAsync(cancellationToken), cancellationToken);
     
     public virtual Task UpdateAsync(T updatedState, 
         CancellationToken cancellationToken = default) =>

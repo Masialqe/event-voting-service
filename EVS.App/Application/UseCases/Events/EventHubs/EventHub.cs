@@ -2,11 +2,12 @@
 using Microsoft.AspNetCore.SignalR;
 using EVS.App.Application.Errors;
 using EVS.App.Domain.Events;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EVS.App.Application.UseCases.Events.EventHubs;
 
 //todo: fix code duplications in exceptions handling
-//todo: add auth to hub
+//todo: auth to Hub
 public class EventHub(
     IEventNotifier eventNotifier,
     EventService eventService,

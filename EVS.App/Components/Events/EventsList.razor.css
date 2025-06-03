@@ -1,0 +1,37 @@
+﻿.grid-container{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 10px;
+    justify-content: center;
+    flex-grow: 1;
+    min-height: 0;
+}
+
+.event-list-container {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-height: 0;
+}
+
+.event-container{
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-height: 550px;
+}
+
+.event-list-searchbar{
+    display: flex;
+}
+
+.event-list{
+    flex-grow: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    flex-shrink: 0;
+}

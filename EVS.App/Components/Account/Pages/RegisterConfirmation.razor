@@ -1,10 +1,7 @@
 ﻿@page "/Account/RegisterConfirmation"
+@layout EventLayout
 
-@using System.Text
 @using EVS.App.Infrastructure.Identity.Services
-@using Microsoft.AspNetCore.Identity
-@using Microsoft.AspNetCore.WebUtilities
-@using EVS.App.Infrastructure.Identity.Users
 
 @inject UserManager<VoterIdentity> UserManager
 @inject IEmailSender<VoterIdentity> EmailSender

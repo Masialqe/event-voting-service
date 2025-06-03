@@ -1,0 +1,79 @@
+﻿@inject LocalStorageService LocalStorageService
+
+<div class="input-group">
+    @if (_searchOptions is not null)
+    {
+        <input
+            type="text"
+            placeholder="Enter event name..."
+            class="form-control w-50"
+            value="@_searchOptions.EventName"
+            @oninput="HandleEventNameChanged"/>
+        <select
+            class="form-select w-25"
+            @bind="_searchOptions.PageSize"
+            @bind:after="HandleSearchOptionsChanged">
+            @foreach (var pageSize in EventListOptions.PageSizes)
+            {
+                <option value="@pageSize">@pageSize</option>
+            }
+        </select>
+        <button
+            class="btn btn-secondary"
+            @onclick="HandleResetSearchBar"><i class="bi bi-x-circle"></i></button>
+    }
+</div>
+
+
+@code {
+    private CancellationTokenSource _tokenSource = new();
+    private EventSearchBarModel? _searchOptions = EventSearchBarModel.Empty;
+    
+    [Parameter] public EventCallback<EventSearchBarModel> OnSearch { get; set; }
+    [Parameter] public EventCallback<EventSearchBarModel> OnParametersLoaded { get; set; }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // _searchOptions = await LocalStorageService.GetValueAsync<EventSearchBarModel>(
+            //                      EventListOptions.LocalStorageKey)
+            //                  ?? EventSearchBarModel.Empty;
+            //
+            await OnParametersLoaded.InvokeAsync(_searchOptions);
+        }
+    }
+
+    private async Task HandleSearchOptionsChanged()
+    {
+        await OnSearch.InvokeAsync(_searchOptions);
+        // await LocalStorageService.SetValue(EventListOptions.LocalStorageKey, _searchOptions);
+    }
+    
+    private async Task HandleEventNameChanged(ChangeEventArgs e)
+    {
+        if(_searchOptions is null) return;
+        
+        _searchOptions.EventName = e.Value?.ToString() ?? string.Empty;
+        
+        var token = RenewCancellationToken();
+        await Task.Delay(800, _tokenSource.Token);
+
+        if (!token.IsCancellationRequested) 
+            await HandleSearchOptionsChanged();
+    }
+    
+    private CancellationToken RenewCancellationToken()
+    {
+        _tokenSource?.Cancel();
+        _tokenSource?.Dispose();
+        _tokenSource = new();
+        return  _tokenSource.Token;
+    }
+
+    private async Task HandleResetSearchBar()
+    {
+        _searchOptions = EventSearchBarModel.Empty;
+        await HandleSearchOptionsChanged();
+    }
+}

@@ -44,7 +44,7 @@ public static class ServiceCollectionExtension
             .AddSignInManager()
             .AddDefaultTokenProviders();
 
-        services.AddSingleton<IEmailSender<VoterIdentity>, IdentityEmailSender>();
+        services.AddScoped<IEmailSender<VoterIdentity>, IdentityEmailSender>();
         services.AddScoped<IUserService, IdentityUserService>();
         services.AddScoped<IAccountManager, IdentityAccountManager>();
         services.AddScoped<IVoterAccessor, IdentityVoterAccessor>();

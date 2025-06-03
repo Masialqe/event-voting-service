@@ -8,6 +8,7 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
 {
     public void Configure(EntityTypeBuilder<Event> builder)
     {
+        //todo: add index to name and date
         builder.HasKey(x => x.Id);
 
         builder.Property(x => x.Id)
@@ -20,6 +21,9 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
             .HasColumnType("varchar(100)")
             .HasColumnName("Event_Name")
             .IsRequired();
+        
+        builder.HasIndex(x => x.Name)
+            .IsUnique();
 
         builder.Property(x => x.Description)
             .HasColumnType("varchar(500)")

@@ -3,12 +3,11 @@
 namespace EVS.App.Infrastructure.Cleaning;
 
 public sealed class DeletedEventsCleanerService(
-    IEventRepository eventRepository,
-    ILogger<DeletedEventsCleanerService> logger) : BackgroundService
+    IServiceProvider serviceProvider) : BackgroundService
 {
     private Timer? _timer;
     private readonly SemaphoreSlim _semaphore = new(1, 1);
-    
+
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _timer = new Timer(_ => _ = DoWorkAsync(stoppingToken), null, TimeSpan.Zero, TimeSpan.FromHours(12));
@@ -21,18 +20,24 @@ public sealed class DeletedEventsCleanerService(
         if (!await _semaphore.WaitAsync(0, stoppingToken))
             return;
 
-        try
+        using (var scope = serviceProvider.CreateScope())
         {
-            await eventRepository.DeleteEndedOlderThanDay(stoppingToken);
-        }
-        catch (Exception ex)
-        {
-            logger.LogError("Failed to execute background operation due to exception {ExceptionMessage} {Exception}",
-                ex.Message, ex);
-        }
-        finally
-        {
-            _semaphore.Release();
+            var eventRepository = scope.ServiceProvider.GetRequiredService<IEventRepository>();
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger<DeletedEventsCleanerService>>();
+            
+            try
+            {
+                await eventRepository.DeleteEndedOlderThanDay(stoppingToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError("Failed to execute background operation due to exception {ExceptionMessage} {Exception}",
+                    ex.Message, ex);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
         }
     }
     

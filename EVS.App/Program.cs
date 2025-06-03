@@ -9,6 +9,7 @@ using EVS.App.Infrastructure.Identity;
 using EVS.App.Infrastructure.Messaging;
 using EVS.App.Infrastructure.Messaging.Configuration;
 using EVS.App.Infrastructure.Notifiers;
+using EVS.App.Presentation.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Serilog;
@@ -33,6 +34,10 @@ builder.Services
 builder.Services
     .AddDomainServices()
     .AddApplicationServices();
+
+//Presentation
+builder.Services.AddBlazorBootstrap();
+builder.Services.AddPresentationServices();
 
 
 var app = builder.Build();

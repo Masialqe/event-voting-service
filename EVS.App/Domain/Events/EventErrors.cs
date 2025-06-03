@@ -6,6 +6,7 @@ namespace EVS.App.Domain.Events;
 public static class EventErrors
 {
     public static Error EventAlreadyExistError => new Error(nameof(EventAlreadyExistError), "Event is already exist");
+    public static Error NotEnoughVotersError => new Error(nameof(NotEnoughVotersError), "Not enough voters to start event.");
     public static Error EventNotFoundError => new Error(nameof(EventNotFoundError), "Event not found");
     public static Error VoterLimitReachedError => new Error(nameof(VoterLimitReachedError), "Voter limit reached");
     public static Error InvalidEventDataError => new Error(nameof(InvalidEventDataError), "Given event data is invalid.");

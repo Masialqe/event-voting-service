@@ -1,0 +1,25 @@
+﻿<form action="Account/Logout" method="post">
+    <AntiforgeryToken/>
+    <input type="hidden" name="ReturnUrl"/>
+    <div class="d-flex flex-column align-items-center p-1">
+        <p> Are you sure you want to logo out?</p>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-danger">Yes</button>
+            <button
+                type="button"
+                class="btn btn-success"
+                aria-hidden="true"
+                @onclick="HandleActionCanceled"> No</button>
+        </div>
+    </div>
+</form>
+
+@code{
+
+    [Parameter] public EventCallback OnActionCanceled { get; set; }
+
+    private async Task HandleActionCanceled()
+    {
+        await OnActionCanceled.InvokeAsync();
+    }
+}

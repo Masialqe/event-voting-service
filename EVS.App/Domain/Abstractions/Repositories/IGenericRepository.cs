@@ -15,6 +15,9 @@ public interface IGenericRepository<T> where T : class, IEntity
 
     Task<T?> GetByIdNoTrackingAsync(Guid id,
         CancellationToken cancellationToken = default);
+
+    Task<IEnumerable<T>> GetManyAsync(
+        CancellationToken cancellationToken = default);
     
     Task UpdateAsync(T updatedState,
         CancellationToken cancellationToken = default);

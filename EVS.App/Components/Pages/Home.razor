@@ -1,20 +1,13 @@
 ﻿@page "/"
-@using EVS.App.Components.Events
-@using EVS.App.Domain.Abstractions.Repositories
-@using EVS.App.Domain.Events
-@using Microsoft.AspNetCore.Authorization
-
-@attribute [Authorize]
+@layout EventLayout
 
 @rendermode InteractiveServer
 
-
-<PageTitle>Home</PageTitle>
-
-<CreateEventForm></CreateEventForm>
-<EventsList></EventsList>
-
-@code
-{
-
-}
+<AuthorizeView>
+    <Authorized>
+        <EventsList></EventsList>
+    </Authorized>
+    <NotAuthorized>
+        <RedirectToLogin/>
+    </NotAuthorized>
+</AuthorizeView>

@@ -17,7 +17,7 @@ public sealed class EventService(
         if(string.IsNullOrEmpty(createEventDto.EventName) || string.IsNullOrEmpty(createEventDto.EventDescription))
             throw new ArgumentNullException();
         
-        if (await IsEventNameAlreadyTaken(createEventDto.EventName, cancellationToken))
+        if (await eventRepository.IsEventNameAlreadyExistsAsync(createEventDto.EventName, cancellationToken))
             return EventErrors.EventAlreadyExistError;
 
         var newEvent = createEventDto.ToDomain();
@@ -37,9 +37,11 @@ public sealed class EventService(
     {
         if(eventId == Guid.Empty) return EventErrors.InvalidEventDataError;
         
-        var eventState = await eventRepository.GetByIdAsync(eventId, cancellationToken);
+        var eventState = await eventRepository.GetIncludingVoterEvents(eventId, cancellationToken);
         
         if(eventState == null) return EventErrors.EventNotFoundError;
+
+        if (IsEventOwnerTheOnlyVoter(eventState)) return EventErrors.NotEnoughVotersError;
         
         eventState.Start();
         await eventRepository.UpdateAsync(eventState, cancellationToken);
@@ -88,13 +90,6 @@ public sealed class EventService(
 
         return voterEventState.Id;
     }
-    
-    //todo: create repository method to just check if event exists
-    private async Task<bool> IsEventNameAlreadyTaken(string eventName,
-        CancellationToken cancellationToken = default)
-    {
-        var result = await eventRepository.GetByNameAsync(eventName, cancellationToken);
-
-        return result is not null;
-    }
+    private bool IsEventOwnerTheOnlyVoter(Event eventState)
+        => eventState.VotersCount == 1 && eventState.VoterEvents.Any(x => x.VoterId == eventState.VoterId);
 }

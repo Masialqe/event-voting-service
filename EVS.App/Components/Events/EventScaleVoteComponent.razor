@@ -1,9 +1,4 @@
-﻿@using EVS.App.Application.UseCases.Voters.GetVoter
-@using EVS.App.Application.UseCases.Voters.SetVoterScore
-@using EVS.App.Domain.VoterEvents
-@using EVS.App.Domain.Voters
-
-@inject SetVotersScoresHandler SetVotersScoresHandler
+﻿@inject SetVotersScoresHandler SetVotersScoresHandler
 @inject GetLoggedVoterHandler GetLoggedVoterHandler
 
 <div>
@@ -56,6 +51,9 @@
         else
         {
             <p> Thanks for vote! Now you need to wait for results! </p>
+            <div class="mb-5">
+                <Spinner Type="SpinnerType.Dots" Size="SpinnerSize.Large" Color="SpinnerColor.Secondary" />
+            </div>
         }
     }
 </div>

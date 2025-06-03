@@ -6,18 +6,21 @@ using EVS.App.Domain.Events;
 
 namespace EVS.App.Application.UseCases.Events.ListEvents;
 
-public sealed class LoadEventsHandler(
+public sealed class LoadEventPageByNameHandler(
     IEventRepository eventRepository,
-    ILogger<LoadEventsHandler> logger) : IHandler<Result<Event[]>, LoadEventsRequest>
+    ILogger<LoadEventPageByNameHandler> logger) : IHandler<Result<(Event[], int)>, LoadEventPageByNameRequest>
 {
-    public async Task<Result<Event[]>> Handle(LoadEventsRequest request, 
+    public async Task<Result<(Event[], int)>> Handle(LoadEventPageByNameRequest request, 
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var result = await eventRepository.GetManyAsPageAsync(cancellationToken: cancellationToken);
+            var offset = (request.PageNumber - 1) * request.PageSize;
             
-            return result.ToArray();
+            var (eventListResult, totalEventCount) = await eventRepository.GetPageByNameAsync(
+                request.EventName, offset, request.PageSize, cancellationToken);
+            
+            return (eventListResult.ToArray(), totalEventCount);
         }
         catch (Exception ex)
         {

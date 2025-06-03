@@ -148,6 +148,15 @@ public sealed class Event : IVoterEventEntity
     
         VotesCount++;
     }
+    /// <summary>
+    /// Create shorten version of event description based on given maxLength.
+    /// </summary>
+    /// <param name="maxLength"> Max length of shorten description.</param>
+    /// <returns></returns>
+    public string GetShortenDescription(int maxLength)
+        => Description.Length > maxLength 
+            ? Description.Substring(0, maxLength - 3) + "..." 
+            : Description;
 
 }
 

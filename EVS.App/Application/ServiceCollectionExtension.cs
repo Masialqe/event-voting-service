@@ -31,7 +31,7 @@ public static class ServiceCollectionExtension
         
         //events
         services.AddScoped<CreateEventHandler>();
-        services.AddScoped<LoadEventsHandler>();
+        services.AddScoped<LoadEventPageByNameHandler>();
         services.AddScoped<JoinEventHandler>();
         services.AddScoped<GetEventByIdHandler>();
         services.AddScoped<GetEventScoresHandler>();

@@ -1,27 +1,23 @@
-﻿@using System.ComponentModel.DataAnnotations
-@using EVS.App.Application.UseCases.Events.CreateEvent
-@using EVS.App.Domain.Events
+﻿@inject CreateEventHandler CreateEventHandler
 
-@inject CreateEventHandler CreateEventHandler
-
-<EditForm Model="Input" FormName="AddEventForm" OnValidSubmit="HandleFormSubmit">
+<EditForm Model="CreateEvent" FormName="AddEventForm" OnValidSubmit="HandleFormSubmit">
     <DataAnnotationsValidator/>
     
     <div class="mb-3">
         <InputText
             class="form-control"
-            @bind-Value="@Input.Name"
+            @bind-Value="@CreateEvent.Name"
             placeholder="Enter event name..."
         />
-        <ValidationMessage For="@(() => Input.Name)" />
+        <ValidationMessage For="@(() => CreateEvent.Name)" />
     </div>
     
     <div class="mb-3">
         <InputText class="form-control"
-                   @bind-Value="@Input.Description"
+                   @bind-Value="@CreateEvent.Description"
                    placeholder="Enter event description..."
         />
-        <ValidationMessage For="@(() => Input.Description)" />
+        <ValidationMessage For="@(() => CreateEvent.Description)" />
     </div>
     
     <div class="mb-3">
@@ -29,44 +25,44 @@
         <InputNumber
             class="form-control"
             id="player-limit"
-            @bind-Value="Input.PlayerLimit"
+            @bind-Value="CreateEvent.PlayerLimit"
             TValue="int"
             min="1"
             placeholder="Enter player limit..."/>
-        <ValidationMessage For="@(() => Input.PlayerLimit)"/>
+        <ValidationMessage For="@(() => CreateEvent.PlayerLimit)"/>
     </div>
 
     <div class="mb-3 d-flex flex-row">
-        <div class="mb-3 p-1">
-            <InputCheckbox id="singleVoteBox"
-                           @bind-Value="_isSingleVoteType"
-                           @onclick="() => HandleVoteSelection(EventTypes.SingleVote, 
-                               ref _isSingleVoteType, ref _isScaleVoteType)"
-                           class="form-check-input" />
-            <label for="singleVoteBox" class="form-check-label">Single vote</label>
-        </div>
-        <div class="mb-3 p-1">
-            <InputCheckbox id="scaleVoteBox"
-                           @bind-Value="_isScaleVoteType"
-                           @onclick="() => HandleVoteSelection(EventTypes.ScaleVote, 
-                               ref _isScaleVoteType, ref _isSingleVoteType)"
-                           class="form-check-input" />
-            <label for="scaleVoteBox" class="form-check-label">Scale vote</label>
-        </div>
-        <ValidationMessage For="@(() => Input.Type)" />
+        <div class="mb-3 p-1"> 
+                <InputCheckbox id="singleVoteBox"
+                               @bind-Value="_isSingleVoteType"
+                               @onclick="() => SwitchVoteType(EventTypes.SingleVote)"
+                               class="form-check-input"
+                               disabled="@_isSingleVoteType"/>
+                <label for="singleVoteBox" class="form-check-label">Single vote</label>
+            </div>
+            <div class="mb-3 p-1">
+                <InputCheckbox id="scaleVoteBox"
+                               @bind-Value="_isScaleVoteType"
+                               @onclick="() => SwitchVoteType(EventTypes.ScaleVote)"
+                               class="form-check-input"
+                               disabled="@_isScaleVoteType"/>
+                <label for="scaleVoteBox" class="form-check-label">Scale vote</label>
+            </div>
+        <ValidationMessage For="@(() => CreateEvent.Type)" />
     </div>
-    @if (Input.Type == EventTypes.ScaleVote)
+    @if (CreateEvent.Type == EventTypes.ScaleVote)
     {
         <div class="mb-3">
             <label for="points-limit">Max points to earn </label>
             <InputNumber
                 class="form-control"
                 id="points-limit"
-                @bind-Value="Input.PointsLimit"
+                @bind-Value="CreateEvent.PointsLimit"
                 TValue="int"
                 min="1"
                 placeholder="Enter player limit..."/>
-            <ValidationMessage For="@(() => Input.PointsLimit)"/>
+            <ValidationMessage For="@(() => CreateEvent.PointsLimit)"/>
         </div>
     }
     
@@ -77,43 +73,45 @@
         </button>
     </div>
 </EditForm>
+<ToolTip @ref="@_toolTip"/>
 
 @code {
     
-    [SupplyParameterFromForm] private InputModel Input { get; set; } = new();
+    [SupplyParameterFromForm] private CreateEventModel CreateEvent { get; set; } = new();
+    [Parameter] public EventCallback OnEventCreated { get; set; }
 
-    private bool _isSingleVoteType = false;
+    private ToolTip _toolTip = default!;
+    private bool _isSingleVoteType = true;
     private bool _isScaleVoteType = false;
     
     private async Task HandleFormSubmit()
     {
-        var request = CreateEventRequest.Create(Input.Name, Input.Description, Input.Type, Input.PlayerLimit, Input.PointsLimit);
-        var result = await CreateEventHandler.Handle(request);
-
-        //todo: failure
+        var result = await CreateEventHandler.Handle(CreateEventRequest.Create(CreateEvent.Name, CreateEvent.Description, 
+            CreateEvent.Type, CreateEvent.PlayerLimit, CreateEvent.PointsLimit));
+        
         if (result.IsSuccess)
+        {
             ResetFormFields();
+            await OnEventCreated.InvokeAsync();
+        }
+        
+        await _toolTip.ShowMessageAsync(
+            result.IsSuccess ? ToastType.Success : ToastType.Danger,
+            result.IsSuccess ? "Event has been added." : result.Error.errorDescription!
+        );
+    }
+
+    private void SwitchVoteType(EventTypes eventType)
+    {
+        _isScaleVoteType = !_isScaleVoteType;
+        _isSingleVoteType = !_isSingleVoteType;
+        CreateEvent.Type = eventType;
     }
     
-    private void HandleVoteSelection(EventTypes selectedType, 
-        ref bool currentSelection, ref bool otherSelection)
-    {
-        if (currentSelection) 
-        {
-            currentSelection = false;
-        }
-        else
-        {
-            currentSelection = true;
-            otherSelection = false; 
-            Input.Type = selectedType;
-        }
-    }
-
     private void ResetFormFields()
     {
-        Input = new();
+        CreateEvent = CreateEventModel.Empty;
         _isScaleVoteType = false;
-        _isSingleVoteType = false;
+        _isSingleVoteType = true;
     }
 }

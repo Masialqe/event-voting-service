@@ -10,8 +10,7 @@ public sealed class EventRepository(
     : GenericRepository<Event>(contextFactory), IEventRepository
 {
     private readonly IDbContextFactory<ApplicationDbContext> _contextFactory = contextFactory;
-
-    //todo: consider if not add start, end separate tasks
+    
     public async Task<Event?> GetIncludingDependencies(Guid eventId, 
         CancellationToken cancellationToken = default)
     {
@@ -25,41 +24,60 @@ public sealed class EventRepository(
             cancellationToken);
     }
     
-    public async Task<Event?> GetByNameAsync(string eventName, 
+    public async Task<Event?> GetIncludingVoterEvents(Guid eventId, 
         CancellationToken cancellationToken = default)
     {
         return await ExecuteAsync(
             context => context.Set<Event>()
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Name == eventName, cancellationToken),
+                .Where(e => e.Id == eventId)
+                .IncludeVoterEvents()
+                .FirstOrDefaultAsync(cancellationToken),
             cancellationToken);
     }
     
-    public async Task<IEnumerable<Event>> GetManyAsPageAsync(int offset = 0, int take = 50, 
+    
+    public async Task<bool> IsEventNameAlreadyExistsAsync(string eventName,CancellationToken cancellationToken = default)
+     => await ExecuteAsync(context 
+         => context.Set<Event>().AnyAsync(x => x.Name == eventName, cancellationToken), cancellationToken);
+    
+    public async Task<IEnumerable<Event>> GetManyAsync(int offset = 0, int take = 50, 
         CancellationToken cancellationToken = default)
-    { 
-        await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
+            => await ExecuteAsync(context => context.Set<Event>().AsNoTracking()
+                .OrderByDescending(e => e.CreatedAt)
+                .IncludeVoterEvents()
+                .Skip(offset)
+                .Take(take)
+                .ToListAsync(cancellationToken), cancellationToken);
+    public async Task<(IEnumerable<Event> Events, int TotalCount)> GetPageByNameAsync(
+        string? eventName, int offset = 0, int take = 50, CancellationToken cancellationToken = default)
+            => await ExecuteAsync(async context =>
+            {
+                var query = context.Set<Event>().AsNoTracking();
+
+                if (!string.IsNullOrEmpty(eventName)) query = query.Where(e 
+                    => e.Name.Contains(eventName));
+                
+                var totalRecordCount = await query.CountAsync(cancellationToken);
+
+                var eventList = await query.OrderByDescending(e => e.CreatedAt)
+                    .IncludeVoterEvents()
+                    .Skip(offset)
+                    .Take(take)
+                    .ToListAsync(cancellationToken);
+                
+                return (eventList, totalRecordCount);
+            }, cancellationToken);
     
-        var result = await context.Set<Event>()
-            .AsNoTracking()
-            .IncludeVoterEvents()
-            .Skip(offset)
-            .Take(take)
-            .ToListAsync(cancellationToken);
-    
-        return result;
-    }
     public async Task DeleteEndedOlderThanDay(CancellationToken cancellationToken = default)
     {
-        const int MAX_HOURS_TO_DELETE = -12;
         await using var context = await _contextFactory.CreateDbContextAsync(cancellationToken);
 
         await context.Set<Event>()
-            .Where(x => x.EndedAt < DateTime.UtcNow.AddHours(MAX_HOURS_TO_DELETE))
+            .Where(x => x.EndedAt < DateTime.UtcNow.AddDays(-1))
                 .ExecuteDeleteAsync(cancellationToken);
     }
 }
-
 
 public static class EventRepositoryExtensions
 {

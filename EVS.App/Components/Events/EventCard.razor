@@ -1,32 +1,33 @@
-﻿@using EVS.App.Application.UseCases.Events.JoinEvent
-@using EVS.App.Application.UseCases.Voters.GetVoter
-@using EVS.App.Domain.Events
-@using EVS.App.Domain.Voters
-
-@inject NavigationManager NavigationManager
+﻿@inject NavigationManager NavigationManager
 @inject GetLoggedVoterHandler GetLoggedVoterHandler
 @inject JoinEventHandler JoinEventHandler
 
 @if(Event is not null && _loggedVoter is not null)
 {
-    <div class="card" style="width: 18rem;">
-        <div class="card-body">
+    <div class="card" style="height: 230px; min-width: 18rem;">
+        <div class="card-body d-flex align-items-center flex-column gap-1">
             <h5 class="card-title">@Event.Name</h5>
-            <h6 class="card-subtitle mb-2 text-body-secondary">
+            <h6 class="card-subtitle mb-2 text-body-secondary fw-light">
                  Players: @Event.VotersCount / @Event.VoterLimit
             </h6>
-            <p class="card-text">@Event.Description.</p>
-            @if (!Event.IsVoterSigned(_loggedVoter.Id))
-            {
-                <button 
-                    type="button" 
-                    class="btn btn-primary"
-                    @onclick="JoinEventAsync"> Join! </button>
-            }
-            <button
-                type="button"
-                class="btn btn-primary"
-                @onclick="MoveToEventView"> Details </button>
+            <p class="card-text text-truncate text-wrap w-100 overflow-hidden flex-fill">
+                <i>@Event.GetShortenDescription(MaxEventDescriptionLength)</i>
+            </p>
+            <div class="d-flex gap-2">
+                @if (!Event.IsVoterSigned(_loggedVoter.Id) || !Event.IsVoterLimitReached)
+                {
+                    <button
+                        type="button"
+                        class="btn btn-success p-2"
+                        aria-label="Join Event"
+                        @onclick="JoinEventAsync"> Join! </button>
+                }
+                <button
+                    type="button"
+                    class="btn btn-light p-2"
+                    aria-label="Event Details"
+                    @onclick="MoveToEventView"> Details </button>
+            </div>
         </div>
     </div>
 }
@@ -37,6 +38,7 @@
     [Parameter] public EventCallback<(string voterId, string eventId)> OnVoterJoinedEvent { get; set; }
 
     private Voter? _loggedVoter;
+    private const int MaxEventDescriptionLength = 100;
 
     protected override async Task OnInitializedAsync()
     {
